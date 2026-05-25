@@ -23,4 +23,3 @@ export type GameEffect =
   | { type: "DELAY"; ms: number }
   | { type: "RELOAD" }
   | { type: "INCREMENT_TURNS" };
-// test
