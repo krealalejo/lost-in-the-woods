@@ -155,7 +155,10 @@ export function useGameEngine(story: Story) {
     [reset, submit],
   );
 
+  const introStarted = useRef(false);
   useEffect(() => {
+    if (introStarted.current) return;
+    introStarted.current = true;
     let cancelled = false;
     const run = async () => {
       setBusyBoth(true);
