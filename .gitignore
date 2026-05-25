@@ -9,3 +9,4 @@ build/
 coverage/
 .claude/
 src/**/*.js
+CLAUDE.md
