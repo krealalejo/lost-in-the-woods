@@ -58,7 +58,8 @@ export function App() {
         <TouchPad disabled={isDisabled} onCommand={handleCommand} />
         <div className="footer-help">
           try: <kbd>look</kbd> <kbd>north</kbd> <kbd>take keys</kbd>{" "}
-          <kbd>inventory</kbd> <kbd>help</kbd> &nbsp;|&nbsp; <kbd>↑</kbd>/
+          <kbd>inventory</kbd> <kbd>help</kbd> &nbsp;|&nbsp; <kbd>↑</kbd>
+          {"/"}
           <kbd>↓</kbd> recall
         </div>
       </CRTScreen>

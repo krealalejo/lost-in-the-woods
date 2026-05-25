@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 interface Props {
   disabled: boolean;
@@ -14,7 +14,6 @@ export function InputRow({
   onHistoryNext,
 }: Props) {
   const [value, setValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = useCallback(() => {
     if (!value.trim() || disabled) return;
@@ -37,16 +36,10 @@ export function InputRow({
     [handleSubmit, onHistoryPrev, onHistoryNext],
   );
 
-  const focusInput = useCallback((e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).tagName === "INPUT") return;
-    inputRef.current?.focus();
-  }, []);
-
   return (
-    <div className="input-row" onClick={focusInput}>
+    <label className="input-row">
       <span className="prompt">&gt;</span>
       <input
-        ref={inputRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -60,7 +53,7 @@ export function InputRow({
         aria-label="command"
       />
       <span className="cursor" />
-    </div>
+    </label>
   );
 }
 

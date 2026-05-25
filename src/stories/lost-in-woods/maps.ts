@@ -95,10 +95,10 @@ export const MAPS: Record<string, string> = {
 
 export function renderMapTokens(raw: string): string {
   return raw
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\{P\}/g, '<span class="player">@</span>')
-    .replace(/\{K\}/g, '<span class="note">K</span>')
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("{P}", '<span class="player">@</span>')
+    .replaceAll("{K}", '<span class="note">K</span>')
     .replace(/\{N\}/g, '<span class="note">N</span>')
     .replace(/\{N:([^}]+)\}/g, '<span class="note">$1</span>')
     .replace(/\{LBL:([^}]+)\}/g, '<span class="label">$1</span>')
