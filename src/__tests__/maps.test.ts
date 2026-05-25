@@ -50,20 +50,28 @@ describe("renderMapTokens", () => {
 });
 
 describe("MAPS", () => {
-  it("has house map", () => {
-    expect(MAPS.house).toBeDefined();
-    expect(typeof MAPS.house).toBe("string");
+  it("has tent map", () => {
+    expect(MAPS.tent).toBeDefined();
+    expect(typeof MAPS.tent).toBe("string");
   });
 
   it("has forest map", () => {
     expect(MAPS.forest).toBeDefined();
   });
 
-  it("has clearing map", () => {
-    expect(MAPS.clearing).toBeDefined();
+  it("has road map", () => {
+    expect(MAPS.road).toBeDefined();
   });
 
-  it("has ending_vampires map", () => {
-    expect(MAPS.ending_vampires).toBeDefined();
+  it("has ending_presence map", () => {
+    expect(MAPS.ending_presence).toBeDefined();
+  });
+
+  it("tent map shows flashlight", () => {
+    expect(MAPS.tent).toMatch(/flashlight/i);
+  });
+
+  it("road map shows car", () => {
+    expect(MAPS.road).toMatch(/car/i);
   });
 });
