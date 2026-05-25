@@ -250,6 +250,22 @@ describe("handle — forest sequence", () => {
       "presence",
     );
   });
+
+  it("entering road at exactly turns=24 (turnsAfterEntry=25) triggers win", () => {
+    const state = forestState(FOREST_SEQUENCE.length - 1, 24);
+    const effects = handle(state, parse(FOREST_SEQUENCE.at(-1)!));
+    const endGame = effects.find((e) => e.type === "END_GAME");
+    expect(endGame && "ending" in endGame ? endGame.ending : "").toBe("win");
+  });
+
+  it("entering road at exactly turns=25 (turnsAfterEntry=26) triggers presence", () => {
+    const state = forestState(FOREST_SEQUENCE.length - 1, 25);
+    const effects = handle(state, parse(FOREST_SEQUENCE.at(-1)!));
+    const endGame = effects.find((e) => e.type === "END_GAME");
+    expect(endGame && "ending" in endGame ? endGame.ending : "").toBe(
+      "presence",
+    );
+  });
 });
 
 describe("handle — forest look (flashlight)", () => {
