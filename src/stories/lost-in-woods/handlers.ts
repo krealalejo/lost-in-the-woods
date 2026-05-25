@@ -16,11 +16,11 @@ export const FOREST_SEQUENCE = [
 ] as const;
 
 const FOREST_DESCRIPTIONS = [
-  "You are in a forest. The trees are tall and look exactly the same.",
-  "You are in a forest. A branch creaks somewhere behind you.",
-  "You are in a forest. The light filtering through the canopy has not changed.",
-  "You are in a forest. You feel like you have been here before.",
-  "You are in a forest. Nothing in particular distinguishes this spot.",
+  "You keep walking, but you could swear you already passed this same twisted pine tree.",
+  "The flashlight beam catches something hanging from a branch: a humanoid figure made of sticks and filthy rope.",
+  "You find three stones stacked on the ground. You did not place them there. Something is guiding you in circles.",
+  "Far away, you hear a child crying. It sounds wrong, as if something is imitating the noise.",
+  "You check the compass, but the needle spins wildly without stopping. You are completely disoriented.",
 ] as const;
 
 export function chain(...handlers: CommandHandler[]): CommandHandler {
@@ -37,23 +37,9 @@ function forestStep(state: Readonly<GameState>): number {
   return (state.flags.forestStep as number) ?? 0;
 }
 
-function hasOpened(state: Readonly<GameState>): boolean {
-  return (state.flags.hasOpened as boolean) ?? false;
-}
-
 function pickForestDesc(state: Readonly<GameState>): string {
   const i = (state.turns + forestStep(state)) % FOREST_DESCRIPTIONS.length;
   return FOREST_DESCRIPTIONS[i];
-}
-
-function houseDescription(state: Readonly<GameState>): string[] {
-  return [
-    "You are in the living room of your house. It is a Tuesday.",
-    'A note on the fridge reads: "PICK UP MOM AT THE AIRPORT — 7 PM."',
-    state.inventory.includes("keys")
-      ? "The front door is here."
-      : "The car keys glint on the rug. The front door is here.",
-  ];
 }
 
 const handleHelp: CommandHandler = (_, cmd) => {
@@ -108,10 +94,11 @@ const handleYell: CommandHandler = (state, cmd) => {
   if (cmd.verb !== "yell") return null;
   const byLocation: Record<string, string> = {
     forest: "Your voice is swallowed by the trees. No reply.",
-    clearing: "Something far away answers. You shouldn't have done that.",
+    road: "Something far away answers. You shouldn't have done that.",
   };
   const text =
-    byLocation[state.location] ?? "You yell. The neighbor's dog barks once.";
+    byLocation[state.location] ??
+    "You yell into the dark. Outside, the circling stops. Then starts again.";
   return [{ type: "PRINT", text }];
 };
 
@@ -124,39 +111,51 @@ const universalHandler = chain(
   handleYell,
 );
 
-const handleHouseLook: CommandHandler = (state, cmd) => {
-  if (state.location !== "house" || cmd.verb !== "look") return null;
-  if (cmd.noun === "note" || cmd.noun === "fridge") {
+// ─── TENT ────────────────────────────────────────────────────────────────────
+
+const handleTentLook: CommandHandler = (state, cmd) => {
+  if (state.location !== "tent" || cmd.verb !== "look") return null;
+  if (cmd.noun === "flashlight") {
     return [
       {
         type: "PRINT",
-        text: 'It reads: "PICK UP MOM AT THE AIRPORT — 7 PM. Don\'t be late."',
+        text: "A small LED flashlight. Its beam is weak, but it is something.",
       },
     ];
   }
-  if (cmd.noun === "keys" || cmd.noun === "key") {
+  if (cmd.noun === "tent") {
     return [
       {
         type: "PRINT",
-        text: "Standard car keys. There's a little plastic moose on the keyring.",
+        text: "A single-person tent. The fabric walls bow inward from the cold.",
       },
     ];
   }
   if (cmd.noun) return null;
-  return houseDescription(state).map((text) => ({
-    type: "PRINT" as const,
-    text,
-  }));
+  return [
+    {
+      type: "PRINT",
+      text: "You are inside your tent. The cold is unnatural — your breath forms clouds of vapor.",
+    },
+    {
+      type: "PRINT",
+      text: "The flashlight lies on the ground beside your sleeping bag.",
+    },
+    {
+      type: "PRINT",
+      text: "Outside, something heavy just stepped on a dry branch. It is circling.",
+    },
+  ];
 };
 
-const handleHouseTake: CommandHandler = (state, cmd) => {
-  if (state.location !== "house" || cmd.verb !== "take") return null;
-  if (cmd.noun === "keys" || cmd.noun === "key") {
-    if (state.inventory.includes("keys")) {
-      return [{ type: "PRINT", text: "You already have the keys." }];
+const handleTentTake: CommandHandler = (state, cmd) => {
+  if (state.location !== "tent" || cmd.verb !== "take") return null;
+  if (cmd.noun === "flashlight") {
+    if (state.inventory.includes("flashlight")) {
+      return [{ type: "PRINT", text: "You already have the flashlight." }];
     }
     return [
-      { type: "ADD_TO_INVENTORY", item: "keys" },
+      { type: "ADD_TO_INVENTORY", item: "flashlight" },
       { type: "PRINT", text: "Taken.", cls: "sys" },
     ];
   }
@@ -165,85 +164,77 @@ const handleHouseTake: CommandHandler = (state, cmd) => {
   ];
 };
 
-const handleHouseOpen: CommandHandler = (state, cmd) => {
-  if (state.location !== "house") return null;
-  const isOpenDoor =
-    cmd.verb === "open" &&
-    (cmd.noun === "door" || cmd.noun === "front door" || cmd.noun === null);
-  const isUseKeys = cmd.verb === "use" && cmd.noun?.includes("key");
-  if (!isOpenDoor && !isUseKeys) return null;
-  if (!state.inventory.includes("keys")) {
-    return [
-      {
-        type: "PRINT",
-        text: "The door is locked. You'll need the keys.",
-        cls: "bad",
-      },
-    ];
-  }
-  if (hasOpened(state)) {
-    return [{ type: "PRINT", text: "The door is already open.", cls: "sys" }];
-  }
+const handleTentMove: CommandHandler = (state, cmd) => {
+  if (state.location !== "tent") return null;
+  if (
+    cmd.verb !== "move" &&
+    cmd.verb !== "leave" &&
+    cmd.verb !== "exit" &&
+    cmd.verb !== "out"
+  )
+    return null;
   return [
-    { type: "SET_FLAG", key: "hasOpened", value: true },
     {
       type: "PRINT",
-      text: "You open the front door. The road yawns ahead.",
-      cls: "sys",
+      text: "You unzip the tent and step into the cold. You feel something watching you from the trees.",
     },
+    ...enterForestFromTentEffects(),
   ];
 };
 
-const handleHouseMove: CommandHandler = (state, cmd) => {
-  if (state.location !== "house" || cmd.verb !== "move") return null;
-  if (!state.inventory.includes("keys")) {
-    return [
-      {
-        type: "PRINT",
-        text: "The door is locked. You'll need the keys.",
-        cls: "bad",
-      },
-    ];
-  }
-  return [
-    { type: "SET_FLAG", key: "hasOpened", value: true },
-    {
-      type: "PRINT",
-      text: "You drive into the night. The road narrows. The road ends.",
-    },
-    { type: "PRINT", text: "You step out among the trees.", cls: "sys" },
-    ...enterForestEffects(),
+const handleTentFallback: CommandHandler = (state, _cmd) => {
+  if (state.location !== "tent") return null;
+  const effects: GameEffect[] = [
+    { type: "PRINT", text: "You can't do that here.", cls: "bad" },
   ];
+  if (state.turns >= 9) {
+    effects.push({
+      type: "PRINT",
+      text: "There is no more time. Your hands are shaking. You need to leave NOW.",
+      cls: "bad",
+    });
+  } else if (state.turns >= 6) {
+    effects.push({
+      type: "PRINT",
+      text: "The shadow presses against the tent wall. You can hear it breathing.",
+      cls: "bad",
+    });
+  } else if (state.turns >= 3) {
+    effects.push({
+      type: "PRINT",
+      text: "A tall shadow stretches across the fabric of the tent.",
+    });
+  }
+  return effects;
 };
 
-const handleHouseFallback: CommandHandler = (state, cmd) => {
-  if (state.location !== "house") return null;
-  if (cmd.verb === "drop")
-    return [{ type: "PRINT", text: "You drop it on the rug." }];
-  return [{ type: "PRINT", text: "You can't do that here.", cls: "bad" }];
-};
-
-function enterForestEffects(): GameEffect[] {
+function enterForestFromTentEffects(): GameEffect[] {
   return [
     { type: "SET_LOCATION", location: "forest" },
     { type: "SET_FLAG", key: "forestStep", value: 0 },
     { type: "PRINT", text: "" },
-    { type: "PRINT", text: "[ FOREST ]", cls: "sys" },
+    { type: "PRINT", text: "[ DEEP FOREST ]", cls: "sys" },
     {
       type: "PRINT",
-      text: "You are in a forest. The trees are tall and look exactly the same.",
+      text: "The darkness outside the tent is absolute. Your flashlight cuts only a few meters ahead.",
     },
     {
       type: "PRINT",
-      text: "You cannot see the sky through the canopy.",
+      text: "The trees are tall and look exactly the same in every direction.",
+    },
+    {
+      type: "PRINT",
+      text: "You cannot see the sky through the canopy. You need to find the old forest road.",
     },
   ];
 }
 
+// ─── FOREST ──────────────────────────────────────────────────────────────────
+
 const handleForestLook: CommandHandler = (state, cmd) => {
   if (state.location !== "forest" || cmd.verb !== "look") return null;
   if (cmd.noun === "tree" || cmd.noun === "trees") {
-    return [{ type: "PRINT", text: "They are trees. You're not a botanist." }];
+    return [{ type: "PRINT", text: "They are trees. They all look the same." }];
   }
   if (cmd.noun === "ground" || cmd.noun === "floor") {
     return [
@@ -254,7 +245,19 @@ const handleForestLook: CommandHandler = (state, cmd) => {
     ];
   }
   if (cmd.noun) return null;
-  return [{ type: "PRINT", text: pickForestDesc(state) }];
+  if (state.inventory.includes("flashlight")) {
+    return [
+      {
+        type: "PRINT",
+        text: "You sweep the flashlight beam across the undergrowth. The light catches every shadow, every shifting branch.",
+      },
+      {
+        type: "PRINT",
+        text: "The trees press in from all sides. You cannot tell which way you came from.",
+      },
+    ];
+  }
+  return [{ type: "PRINT", text: "It's too dark to see anything useful." }];
 };
 
 const handleForestTake: CommandHandler = (state, cmd) => {
@@ -283,9 +286,13 @@ const handleForestMove: CommandHandler = (state, cmd) => {
       return [
         { type: "SET_FLAG", key: "forestStep", value: nextStep },
         { type: "PRINT", text: "" },
-        { type: "PRINT", text: "YOU ARE OUT OF THE FOREST.", cls: "sys" },
+        {
+          type: "PRINT",
+          text: "YOU ESCAPED THE FOREST.",
+          cls: "sys",
+        },
         { type: "DELAY", ms: 600 },
-        ...enterClearingEffects(state.turns + 1),
+        ...enterRoadEffects(state.turns + 1),
       ];
     }
     return [
@@ -316,43 +323,54 @@ const handleForestFallback: CommandHandler = (state, cmd) => {
   ];
 };
 
-function enterClearingEffects(turnsAfterEntry: number): GameEffect[] {
+function enterRoadEffects(turnsAfterEntry: number): GameEffect[] {
   const base: GameEffect[] = [
-    { type: "SET_LOCATION", location: "clearing" },
-    { type: "PRINT", text: "[ CLEARING ]", cls: "sys" },
+    { type: "SET_LOCATION", location: "road" },
+    { type: "PRINT", text: "[ FOREST ROAD ]", cls: "sys" },
     {
       type: "PRINT",
-      text: "You step into a wide moonlit clearing at the edge of the forest.",
+      text: "Your boots hit cracked asphalt. The smell of wet soil gives way to engine oil.",
     },
-    { type: "PRINT", text: "The grass is wet. The night is very, very quiet." },
+    {
+      type: "PRINT",
+      text: "Your car is a few meters ahead. The tree line looms behind you.",
+    },
     { type: "DELAY", ms: 400 },
   ];
 
   if (turnsAfterEntry > 25) {
     return [
       ...base,
-      { type: "END_GAME", ending: "vampires" },
+      { type: "END_GAME", ending: "presence" },
       { type: "PRINT", text: "" },
       {
         type: "PRINT",
-        text: "Something is wrong with the runway lights. They aren't blinking.",
+        text: "At last, your boots hit the asphalt of the old road. You reach your car, but the driver's door has been ripped clean off.",
+        cls: "bad",
+      },
+      {
+        type: "PRINT",
+        text: "On the seat sits a pile of stones stacked with unnatural precision.",
         cls: "bad",
       },
       { type: "DELAY", ms: 600 },
-      { type: "PRINT", text: "They are eyes.", cls: "bad" },
+      {
+        type: "PRINT",
+        text: 'Suddenly, you hear your own voice, recorded and distorted, echoing from the darkness behind you: "Hello? Is anyone there?"',
+        cls: "bad",
+      },
       { type: "DELAY", ms: 900 },
-      { type: "PRINT", text: "" },
       {
         type: "PRINT",
-        text: "While you were lost, the world fell. Mom was the first to go.",
+        text: "The flashlight flickers and dies. You hear rapid footsteps sprinting toward you.",
         cls: "bad",
       },
       { type: "DELAY", ms: 600 },
-      { type: "PRINT", text: "THE VAMPIRES WON. GAME OVER.", cls: "bad" },
+      { type: "PRINT", text: "GAME OVER.", cls: "bad" },
       { type: "PRINT", text: "" },
       {
         type: "PRINT",
-        text: "(type RESTART to try again. it won't help.)",
+        text: "(type RESTART to try again.)",
         cls: "sys",
       },
     ];
@@ -362,43 +380,45 @@ function enterClearingEffects(turnsAfterEntry: number): GameEffect[] {
     ...base,
     {
       type: "PRINT",
-      text: "In the distance you can see the airport lights. You sprint.",
+      text: "The forest spits your body onto cracked asphalt. A few meters away sits your car. You jump inside, lock the doors, and turn the key.",
     },
     { type: "DELAY", ms: 700 },
-    { type: "END_GAME", ending: "win" },
     {
       type: "PRINT",
-      text: "You make the 7 PM pickup with three minutes to spare.",
-      cls: "sys",
+      text: "When the headlights flare on, they illuminate the tree line. For a split second, you see dozens of tall figures made of branches standing at the edge of the woods, watching.",
     },
-    { type: "PRINT", text: "Mom asks how the drive was. You say it was fine." },
+    {
+      type: "PRINT",
+      text: "You slam the accelerator and never look in the rearview mirror. You survived.",
+    },
+    { type: "END_GAME", ending: "win" },
     { type: "PRINT", text: "" },
     {
       type: "PRINT",
-      text: "(this ending is statistically almost impossible. how did you do it?)",
+      text: "(type RESTART to play again.)",
       cls: "sys",
     },
-    { type: "PRINT", text: "(type RESTART to play again.)", cls: "sys" },
   ];
 }
 
-const handleClearingLook: CommandHandler = (state, cmd) => {
-  if (state.location !== "clearing" || cmd.verb !== "look") return null;
+// ─── ROAD ─────────────────────────────────────────────────────────────────────
+
+const handleRoadLook: CommandHandler = (state, cmd) => {
+  if (state.location !== "road" || cmd.verb !== "look") return null;
   return [
     {
       type: "PRINT",
-      text: "Moonlit grass. Far away: blinking red runway lights.",
+      text: "Cracked asphalt stretches in both directions. Your car sits ahead, engine cold.",
+    },
+    {
+      type: "PRINT",
+      text: "The tree line is dark. Something moves at the edge of the light.",
     },
   ];
 };
 
-const handleClearingFallback: CommandHandler = (state, cmd) => {
-  if (state.location !== "clearing") return null;
-  if (cmd.verb === "move") {
-    return [
-      { type: "PRINT", text: "It is too late to do that now.", cls: "bad" },
-    ];
-  }
+const handleRoadFallback: CommandHandler = (state, _cmd) => {
+  if (state.location !== "road") return null;
   return [
     { type: "PRINT", text: "It is too late to do that now.", cls: "bad" },
   ];
@@ -408,12 +428,11 @@ const handleUnknown: CommandHandler = () => {
   return [{ type: "PRINT", text: "You can't do that here.", cls: "bad" }];
 };
 
-const houseHandler = chain(
-  handleHouseLook,
-  handleHouseTake,
-  handleHouseOpen,
-  handleHouseMove,
-  handleHouseFallback,
+const tentHandler = chain(
+  handleTentLook,
+  handleTentTake,
+  handleTentMove,
+  handleTentFallback,
 );
 
 const forestHandler = chain(
@@ -423,12 +442,12 @@ const forestHandler = chain(
   handleForestFallback,
 );
 
-const clearingHandler = chain(handleClearingLook, handleClearingFallback);
+const roadHandler = chain(handleRoadLook, handleRoadFallback);
 
 const locationHandlers: Record<string, CommandHandler> = {
-  house: houseHandler,
+  tent: tentHandler,
   forest: forestHandler,
-  clearing: clearingHandler,
+  road: roadHandler,
 };
 
 export function handle(
