@@ -5,7 +5,7 @@ import { MAPS, renderMapTokens } from "./maps";
 import { parse } from "./parser";
 
 const INITIAL_STATE: GameState = {
-  location: "house",
+  location: "tent",
   inventory: [],
   flags: {},
   turns: 0,
@@ -23,23 +23,30 @@ function getIntro(): GameEffect[] {
     { type: "PRINT", text: "release 1 / serial 19831024 / 48k", cls: "sys" },
     { type: "DELAY", ms: 300 },
     { type: "PRINT", text: "" },
-    { type: "PRINT", text: "It is six o'clock. Mom's flight lands at seven." },
     {
       type: "PRINT",
-      text: "She has asked you, repeatedly, to pick her up. Do not be late.",
+      text: "You wake up in the middle of the night inside your tent.",
+    },
+    {
+      type: "PRINT",
+      text: "The cold feels unnatural. Your breath forms clouds of vapor.",
+    },
+    {
+      type: "PRINT",
+      text: "Outside, in the absolute darkness of the Akasawa forest, something heavy has just stepped on a dry branch.",
+    },
+    {
+      type: "PRINT",
+      text: "It is circling your tent. You have no signal.",
     },
     { type: "PRINT", text: "" },
     {
       type: "PRINT",
-      text: "You are in the living room of your house. It is a Tuesday.",
+      text: "The flashlight lies on the ground beside your sleeping bag. You should take it.",
     },
     {
       type: "PRINT",
-      text: 'A note on the fridge reads: "PICK UP MOM AT THE AIRPORT — 7 PM."',
-    },
-    {
-      type: "PRINT",
-      text: "The car keys glint on the rug. The front door is here.",
+      text: "You need to reach the old forest road where you left your car. And you need to do it now.",
     },
     { type: "PRINT", text: "" },
     { type: "PRINT", text: "Type HELP for a list of verbs.", cls: "sys" },
@@ -48,9 +55,16 @@ function getIntro(): GameEffect[] {
 
 function getMap(state: Readonly<GameState>): string {
   let key = state.location;
-  if (state.ended === "vampires") key = "ending_vampires";
+  if (state.ended === "presence") key = "ending_presence";
   const raw = MAPS[key] ?? "";
   return renderMapTokens(raw);
+}
+
+function getMapItems(state: Readonly<GameState>): string[] {
+  if (state.location === "tent" && !state.inventory.includes("flashlight")) {
+    return ["flashlight"];
+  }
+  return [];
 }
 
 export const lostInWoodsStory: Story = {
@@ -61,6 +75,23 @@ export const lostInWoodsStory: Story = {
   initialState: () => ({ ...INITIAL_STATE, flags: {}, inventory: [] }),
   getIntro,
   getMap,
+  getMapItems,
   parse,
   handle,
+  paths: [
+    [
+      "take flashlight",
+      "leave",
+      "north",
+      "north",
+      "east",
+      "north",
+      "east",
+      "south",
+      "west",
+      "north",
+      "north",
+      "east",
+    ],
+  ],
 };
