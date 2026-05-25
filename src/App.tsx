@@ -15,7 +15,8 @@ export function App() {
     useGameEngine(story);
 
   const mapHtml = story.getMap(state);
-  const isDoom = state.ended === "vampires";
+  const mapItems = story.getMapItems?.(state);
+  const isDoom = state.ended === "presence";
   const isDisabled = busy || state.ended !== null;
 
   const handleCommand = useCallback(
@@ -46,7 +47,7 @@ export function App() {
   return (
     <CRTScreen doom={isDoom}>
       <Hud location={state.location} turns={state.turns} />
-      <MapPanel mapHtml={mapHtml} />
+      <MapPanel mapHtml={mapHtml} mapItems={mapItems} />
       <OutputLog lines={lines} />
       <InputRow
         disabled={isDisabled}
@@ -56,7 +57,7 @@ export function App() {
       />
       <TouchPad disabled={isDisabled} onCommand={handleCommand} />
       <div className="footer-help">
-        try: <kbd>look</kbd> <kbd>north</kbd> <kbd>take keys</kbd>{" "}
+        try: <kbd>look</kbd> <kbd>north</kbd> <kbd>take flashlight</kbd>{" "}
         <kbd>inventory</kbd> <kbd>help</kbd> &nbsp;|&nbsp; <kbd>↑</kbd>
         {"/"}
         <kbd>↓</kbd> recall

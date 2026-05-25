@@ -53,9 +53,24 @@ describe("MapPanel", () => {
     expect(container.querySelector(".map")!.innerHTML).toBe("<b>map</b>");
   });
 
-  it("renders compass text", () => {
-    render(<MapPanel mapHtml="" />);
-    expect(screen.getByText(/N/)).toBeTruthy();
+  it("does not render compass span", () => {
+    const { container } = render(<MapPanel mapHtml="" />);
+    expect(container.querySelector(".compass")).toBeNull();
+  });
+
+  it("does not render tag span", () => {
+    const { container } = render(<MapPanel mapHtml="" />);
+    expect(container.querySelector(".tag")).toBeNull();
+  });
+
+  it("renders mapItems when provided", () => {
+    render(<MapPanel mapHtml="" mapItems={["flashlight"]} />);
+    expect(screen.getByText("flashlight")).toBeTruthy();
+  });
+
+  it("renders no items container when mapItems is empty", () => {
+    const { container } = render(<MapPanel mapHtml="" mapItems={[]} />);
+    expect(container.querySelector(".map-items")).toBeNull();
   });
 });
 
