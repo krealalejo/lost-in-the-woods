@@ -247,6 +247,32 @@ describe("useGameEngine", () => {
     expect(result.current.historyNext()).toBe("north");
   });
 
+  it("DELAY effect resolves after specified ms", async () => {
+    const story = makeStory({
+      handle: (): GameEffect[] => [{ type: "DELAY", ms: 0 }],
+    });
+    const { result } = await mountIdle(story);
+
+    await act(async () => {
+      await result.current.submit("go");
+    });
+
+    expect(result.current.busy).toBe(false);
+  });
+
+  it("RELOAD effect completes without error", async () => {
+    const story = makeStory({
+      handle: (): GameEffect[] => [{ type: "RELOAD" }],
+    });
+    const { result } = await mountIdle(story);
+
+    await act(async () => {
+      await result.current.submit("go");
+    });
+
+    expect(result.current.busy).toBe(false);
+  });
+
   it("reset restores initial state and re-runs intro", async () => {
     const story = makeStory({
       handle: (): GameEffect[] => [{ type: "SET_LOCATION", location: "far" }],
