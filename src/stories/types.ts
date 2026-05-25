@@ -11,11 +11,6 @@ export type CommandHandler = (
   command: ParsedCommand,
 ) => GameEffect[] | null;
 
-export interface StoryPath {
-  label: string;
-  commands: readonly string[];
-}
-
 export interface Story {
   readonly id: string;
   readonly title: string;
@@ -25,5 +20,4 @@ export interface Story {
   getMap(state: Readonly<GameState>): string;
   parse(raw: string): ParsedCommand;
   handle(state: Readonly<GameState>, command: ParsedCommand): GameEffect[];
-  readonly paths?: Record<string, StoryPath>;
 }

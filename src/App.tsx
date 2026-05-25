@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from "react";
 import { CRTScreen } from "./components/CRTScreen";
-import { DevPanel } from "./components/DevPanel";
 import { HUD } from "./components/HUD";
 import { InputRow } from "./components/InputRow";
 import { MapPanel } from "./components/MapPanel";
@@ -12,16 +11,8 @@ import { lostInWoodsStory } from "./stories/lost-in-woods/index";
 const story = lostInWoodsStory;
 
 export function App() {
-  const {
-    state,
-    lines,
-    busy,
-    submit,
-    historyPrev,
-    historyNext,
-    reset,
-    autoplay,
-  } = useGameEngine(story);
+  const { state, lines, busy, submit, historyPrev, historyNext } =
+    useGameEngine(story);
 
   const mapHtml = story.getMap(state);
   const isDoom = state.ended === "vampires";
@@ -71,10 +62,6 @@ export function App() {
           <kbd>↓</kbd> recall
         </div>
       </CRTScreen>
-
-      {import.meta.env.DEV && story.paths && (
-        <DevPanel paths={story.paths} onAutoplay={autoplay} onReset={reset} />
-      )}
     </>
   );
 }

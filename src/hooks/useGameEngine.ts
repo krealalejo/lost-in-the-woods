@@ -138,27 +138,7 @@ export function useGameEngine(story: Story) {
     setBusyBoth(false);
   }, [story, clearLines, syncDisplay, processEffects, setBusyBoth]);
 
-  const autoplay = useCallback(
-    async (commands: readonly string[], delayMs = 220) => {
-      await reset();
-      await new Promise<void>((r) => setTimeout(r, 200));
-      for (const cmd of commands) {
-        if (stateRef.current.ended) break;
-        let guard = 0;
-        while (busyRef.current && guard++ < 200) {
-          await new Promise<void>((r) => setTimeout(r, 50));
-        }
-        await submit(cmd);
-        await new Promise<void>((r) => setTimeout(r, delayMs));
-      }
-    },
-    [reset, submit],
-  );
-
-  const introStarted = useRef(false);
   useEffect(() => {
-    if (introStarted.current) return;
-    introStarted.current = true;
     let cancelled = false;
     const run = async () => {
       setBusyBoth(true);
@@ -168,9 +148,10 @@ export function useGameEngine(story: Story) {
     run();
     return () => {
       cancelled = true;
+      clearLines();
+      stateRef.current = story.initialState();
+      setBusyBoth(false);
     };
-    // Only on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
@@ -181,6 +162,5 @@ export function useGameEngine(story: Story) {
     historyPrev,
     historyNext,
     reset,
-    autoplay,
   };
 }

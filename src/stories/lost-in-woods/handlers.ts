@@ -56,10 +56,6 @@ function houseDescription(state: Readonly<GameState>): string[] {
   ];
 }
 
-// ---------------------------------------------------------------------------
-// Universal handlers
-// ---------------------------------------------------------------------------
-
 const handleHelp: CommandHandler = (_, cmd) => {
   if (cmd.verb !== "help") return null;
   return [
@@ -127,10 +123,6 @@ const universalHandler = chain(
   handleWait,
   handleYell,
 );
-
-// ---------------------------------------------------------------------------
-// House handlers
-// ---------------------------------------------------------------------------
 
 const handleHouseLook: CommandHandler = (state, cmd) => {
   if (state.location !== "house" || cmd.verb !== "look") return null;
@@ -231,10 +223,6 @@ const handleHouseFallback: CommandHandler = (state, cmd) => {
   return [{ type: "PRINT", text: "You can't do that here.", cls: "bad" }];
 };
 
-// ---------------------------------------------------------------------------
-// Forest handlers
-// ---------------------------------------------------------------------------
-
 function enterForestEffects(): GameEffect[] {
   return [
     { type: "SET_LOCATION", location: "forest" },
@@ -328,10 +316,6 @@ const handleForestFallback: CommandHandler = (state, cmd) => {
   ];
 };
 
-// ---------------------------------------------------------------------------
-// Clearing handlers
-// ---------------------------------------------------------------------------
-
 function enterClearingEffects(turnsAfterEntry: number): GameEffect[] {
   const base: GameEffect[] = [
     { type: "SET_LOCATION", location: "clearing" },
@@ -420,17 +404,9 @@ const handleClearingFallback: CommandHandler = (state, cmd) => {
   ];
 };
 
-// ---------------------------------------------------------------------------
-// Unknown command fallback
-// ---------------------------------------------------------------------------
-
 const handleUnknown: CommandHandler = () => {
   return [{ type: "PRINT", text: "You can't do that here.", cls: "bad" }];
 };
-
-// ---------------------------------------------------------------------------
-// Composed location handlers
-// ---------------------------------------------------------------------------
 
 const houseHandler = chain(
   handleHouseLook,
@@ -454,10 +430,6 @@ const locationHandlers: Record<string, CommandHandler> = {
   forest: forestHandler,
   clearing: clearingHandler,
 };
-
-// ---------------------------------------------------------------------------
-// Main dispatch
-// ---------------------------------------------------------------------------
 
 export function handle(
   state: Readonly<GameState>,

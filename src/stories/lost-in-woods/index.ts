@@ -1,6 +1,6 @@
 import type { GameEffect, GameState } from "../../engine/types";
 import type { Story } from "../types";
-import { handle, FOREST_SEQUENCE } from "./handlers";
+import { handle } from "./handlers";
 import { MAPS, renderMapTokens } from "./maps";
 import { parse } from "./parser";
 
@@ -63,43 +63,4 @@ export const lostInWoodsStory: Story = {
   getMap,
   parse,
   handle,
-
-  paths: {
-    happy: {
-      label: "Happy path — you make it",
-      commands: ["take keys", "open door", "north", ...FOREST_SEQUENCE],
-    },
-    block: {
-      label: "Block path — lost forever",
-      commands: [
-        "take keys",
-        "open door",
-        "north",
-        "north",
-        "south",
-        "east",
-        "west",
-        "north",
-        "east",
-        "south",
-        "west",
-        "south",
-        "north",
-        "east",
-        "north",
-        "west",
-        "south",
-      ],
-    },
-    terror: {
-      label: "Terror path — vampires win",
-      commands: [
-        "take keys",
-        "open door",
-        "north",
-        ...Array(16).fill("wait"),
-        ...FOREST_SEQUENCE,
-      ],
-    },
-  },
 };
