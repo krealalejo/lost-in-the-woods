@@ -164,14 +164,12 @@ const handleTentTake: CommandHandler = (state, cmd) => {
   ];
 };
 
+// Any movement verb exits the tent — direction is irrelevant inside.
+// Note: "exit" is aliased to "leave" by the parser, so it never arrives here
+// as cmd.verb === "exit". Only "move", "leave", and "out" are live values.
 const handleTentMove: CommandHandler = (state, cmd) => {
   if (state.location !== "tent") return null;
-  if (
-    cmd.verb !== "move" &&
-    cmd.verb !== "leave" &&
-    cmd.verb !== "exit" &&
-    cmd.verb !== "out"
-  )
+  if (cmd.verb !== "move" && cmd.verb !== "leave" && cmd.verb !== "out")
     return null;
   return [
     {
