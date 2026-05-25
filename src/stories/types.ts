@@ -15,9 +15,11 @@ export interface Story {
   readonly id: string;
   readonly title: string;
   readonly subtitle?: string;
+  readonly paths?: string[][];
   initialState(): GameState;
   getIntro(): GameEffect[];
   getMap(state: Readonly<GameState>): string;
+  getMapItems?(state: Readonly<GameState>): string[];
   parse(raw: string): ParsedCommand;
   handle(state: Readonly<GameState>, command: ParsedCommand): GameEffect[];
 }
