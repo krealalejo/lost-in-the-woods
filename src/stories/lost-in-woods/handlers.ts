@@ -340,8 +340,9 @@ function enterRoadEffects(turnsAfterEntry: number): GameEffect[] {
 
   if (turnsAfterEntry > 25) {
     return [
-      ...base,
-      { type: "END_GAME", ending: "presence" },
+      { type: "SET_LOCATION", location: "road" },
+      { type: "PRINT", text: "[ FOREST ROAD ]", cls: "sys" },
+      { type: "DELAY", ms: 400 },
       { type: "PRINT", text: "" },
       {
         type: "PRINT",
@@ -373,6 +374,7 @@ function enterRoadEffects(turnsAfterEntry: number): GameEffect[] {
         text: "(type RESTART to try again.)",
         cls: "sys",
       },
+      { type: "END_GAME", ending: "presence" },
     ];
   }
 
