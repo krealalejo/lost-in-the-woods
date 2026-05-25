@@ -5,7 +5,7 @@ import { parse } from "../stories/lost-in-woods/parser";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {
-    location: "house",
+    location: "tent",
     inventory: [],
     flags: {},
     turns: 0,
@@ -43,9 +43,9 @@ describe("handle — universal commands", () => {
   });
 
   it("inv with items lists them", () => {
-    const state = makeState({ inventory: ["keys"] });
+    const state = makeState({ inventory: ["flashlight"] });
     const text = firstPrint(state, "inventory");
-    expect(text).toMatch(/keys/);
+    expect(text).toMatch(/flashlight/);
   });
 
   it("wait does not end game", () => {
@@ -59,52 +59,123 @@ describe("handle — universal commands", () => {
   });
 });
 
-describe("handle — house", () => {
-  it("look describes living room", () => {
-    const text = firstPrint(makeState(), "look");
-    expect(text).toMatch(/living room/i);
-  });
-
-  it("take keys adds to inventory", () => {
-    const effects = handle(makeState(), parse("take keys"));
-    expect(effects).toContainEqual({ type: "ADD_TO_INVENTORY", item: "keys" });
-  });
-
-  it("take keys when already held reports duplicate", () => {
-    const state = makeState({ inventory: ["keys"] });
-    const text = firstPrint(state, "take keys");
-    expect(text).toMatch(/already/i);
-  });
-
-  it("open door without keys is blocked", () => {
-    const effects = handle(makeState(), parse("open door"));
-    const print = effects.find((e) => e.type === "PRINT");
-    expect(print && "cls" in print ? print.cls : "").toBe("bad");
-  });
-
-  it("open door with keys sets hasOpened flag", () => {
-    const state = makeState({ inventory: ["keys"] });
-    const effects = handle(state, parse("open door"));
+describe("handle — tent", () => {
+  it("take flashlight adds to inventory", () => {
+    const effects = handle(
+      makeState({ location: "tent" }),
+      parse("take flashlight"),
+    );
     expect(effects).toContainEqual({
-      type: "SET_FLAG",
-      key: "hasOpened",
-      value: true,
+      type: "ADD_TO_INVENTORY",
+      item: "flashlight",
     });
   });
 
-  it("move without keys is blocked", () => {
-    const effects = handle(makeState(), parse("north"));
-    const print = effects.find((e) => e.type === "PRINT");
-    expect(print && "cls" in print ? print.cls : "").toBe("bad");
+  it("take flashlight when already held reports duplicate", () => {
+    const state = makeState({ location: "tent", inventory: ["flashlight"] });
+    const text = firstPrint(state, "take flashlight");
+    expect(text).toMatch(/already/i);
+    const effects = handle(state, parse("take flashlight"));
+    const addEffects = effects.filter((e) => e.type === "ADD_TO_INVENTORY");
+    expect(addEffects.length).toBe(0);
   });
 
-  it("move with keys enters forest", () => {
-    const state = makeState({ inventory: ["keys"] });
+  it("leave enters forest", () => {
+    const effects = handle(makeState({ location: "tent" }), parse("leave"));
+    expect(effects).toContainEqual({
+      type: "SET_LOCATION",
+      location: "forest",
+    });
+  });
+
+  it("exit enters forest", () => {
+    const effects = handle(makeState({ location: "tent" }), parse("exit"));
+    expect(effects).toContainEqual({
+      type: "SET_LOCATION",
+      location: "forest",
+    });
+  });
+
+  it("north enters forest without flashlight", () => {
+    const state = makeState({ location: "tent", inventory: [] });
     const effects = handle(state, parse("north"));
     expect(effects).toContainEqual({
       type: "SET_LOCATION",
       location: "forest",
     });
+  });
+
+  it("look describes tent interior", () => {
+    const text = firstPrint(makeState({ location: "tent" }), "look");
+    expect(text.length).toBeGreaterThan(0);
+  });
+});
+
+describe("handle — tent linger", () => {
+  const SHADOW_STRING =
+    "A tall shadow stretches across the fabric of the tent.";
+
+  it("turn 2 shows no shadow warning", () => {
+    const state = makeState({ location: "tent", turns: 2 });
+    const effects = handle(state, parse("dance"));
+    const prints = effects.filter((e) => e.type === "PRINT");
+    const shadowPrint = prints.find(
+      (e) => "text" in e && e.text === SHADOW_STRING,
+    );
+    expect(shadowPrint).toBeUndefined();
+  });
+
+  it("turn 3 shows shadow warning", () => {
+    const state = makeState({ location: "tent", turns: 3 });
+    const effects = handle(state, parse("dance"));
+    const prints = effects.filter((e) => e.type === "PRINT");
+    const shadowPrint = prints.find(
+      (e) => "text" in e && e.text === SHADOW_STRING,
+    );
+    expect(shadowPrint).toBeDefined();
+  });
+
+  it("turn 6 shows a more intense warning", () => {
+    const state = makeState({ location: "tent", turns: 6 });
+    const effects = handle(state, parse("dance"));
+    const prints = effects.filter((e) => e.type === "PRINT");
+    const lingerPrint = prints.find(
+      (e) => "text" in e && e.text !== "You can't do that here.",
+    );
+    expect(lingerPrint).toBeDefined();
+    expect(
+      lingerPrint && "text" in lingerPrint ? lingerPrint.text : "",
+    ).not.toBe(SHADOW_STRING);
+  });
+
+  it("turn 9 shows the panic warning", () => {
+    const state = makeState({ location: "tent", turns: 9 });
+    const effects = handle(state, parse("dance"));
+    const prints = effects.filter((e) => e.type === "PRINT");
+    const lingerPrint = prints.find(
+      (e) => "text" in e && e.text !== "You can't do that here.",
+    );
+    expect(lingerPrint).toBeDefined();
+    // turn 9 panic text is distinct from turn 6
+    const turn6State = makeState({ location: "tent", turns: 6 });
+    const turn6Effects = handle(turn6State, parse("dance"));
+    const turn6Prints = turn6Effects.filter((e) => e.type === "PRINT");
+    const turn6Linger = turn6Prints.find(
+      (e) => "text" in e && e.text !== "You can't do that here.",
+    );
+    expect(
+      lingerPrint && "text" in lingerPrint ? lingerPrint.text : "",
+    ).not.toBe(turn6Linger && "text" in turn6Linger ? turn6Linger.text : "");
+  });
+
+  it("valid command at turn 3 does not show linger warning", () => {
+    const state = makeState({ location: "tent", turns: 3 });
+    const effects = handle(state, parse("take flashlight"));
+    const prints = effects.filter((e) => e.type === "PRINT");
+    const shadowPrint = prints.find(
+      (e) => "text" in e && e.text === SHADOW_STRING,
+    );
+    expect(shadowPrint).toBeUndefined();
   });
 });
 
@@ -128,7 +199,7 @@ describe("handle — forest sequence", () => {
     });
   });
 
-  it("wrong step silently resets forestStep to 0", () => {
+  it("wrong step resets forestStep to 0", () => {
     const state = forestState(3);
     const wrongDir = FOREST_SEQUENCE[0] === "north" ? "south" : "north";
     const effects = handle(state, parse(wrongDir));
@@ -137,19 +208,32 @@ describe("handle — forest sequence", () => {
       key: "forestStep",
       value: 0,
     });
+    // Assert the reset PRINT is one of the 5 Akasawa lost-descriptions
+    const prints = effects.filter((e) => e.type === "PRINT");
+    const lostDescriptions = [
+      "You keep walking, but you could swear you already passed this same twisted pine tree.",
+      "The flashlight beam catches something hanging from a branch: a humanoid figure made of sticks and filthy rope.",
+      "You find three stones stacked on the ground. You did not place them there. Something is guiding you in circles.",
+      "Far away, you hear a child crying. It sounds wrong, as if something is imitating the noise.",
+      "You check the compass, but the needle spins wildly without stopping. You are completely disoriented.",
+    ];
+    const descPrint = prints.find(
+      (e) => "text" in e && lostDescriptions.includes(e.text),
+    );
+    expect(descPrint).toBeDefined();
   });
 
-  it("completing sequence enters clearing", () => {
+  it("completing sequence enters road", () => {
     const state = forestState(FOREST_SEQUENCE.length - 1, 1);
     const lastDir = FOREST_SEQUENCE.at(-1)!;
     const effects = handle(state, parse(lastDir));
     expect(effects).toContainEqual({
       type: "SET_LOCATION",
-      location: "clearing",
+      location: "road",
     });
   });
 
-  it("entering clearing with turns <= 25 triggers win", () => {
+  it("entering road with turns <= 25 triggers win", () => {
     const state = forestState(FOREST_SEQUENCE.length - 1, 1);
     const lastDir = FOREST_SEQUENCE.at(-1)!;
     const effects = handle(state, parse(lastDir));
@@ -157,82 +241,48 @@ describe("handle — forest sequence", () => {
     expect(endGame && "ending" in endGame ? endGame.ending : "").toBe("win");
   });
 
-  it("entering clearing with turns > 25 triggers vampires", () => {
+  it("entering road with turns > 25 triggers presence", () => {
     const state = forestState(FOREST_SEQUENCE.length - 1, 26);
     const lastDir = FOREST_SEQUENCE.at(-1)!;
     const effects = handle(state, parse(lastDir));
     const endGame = effects.find((e) => e.type === "END_GAME");
     expect(endGame && "ending" in endGame ? endGame.ending : "").toBe(
-      "vampires",
+      "presence",
     );
   });
 });
 
-describe("handle — clearing", () => {
-  it("look returns description", () => {
-    const state = makeState({ location: "clearing" });
+describe("handle — forest look (flashlight)", () => {
+  it("look without flashlight is dark", () => {
+    const state = forestState(0);
+    // forestState has empty inventory by default
     const text = firstPrint(state, "look");
-    expect(text).toMatch(/moonlit/i);
+    expect(text).toMatch(/too dark/i);
   });
 
-  it("unknown verb returns bad print", () => {
-    const state = makeState({ location: "clearing" });
-    const effects = handle(state, parse("dance"));
-    const print = effects.find((e) => e.type === "PRINT");
-    expect(print && "cls" in print ? print.cls : "").toBe("bad");
-  });
-
-  it("move in clearing returns bad print", () => {
-    const state = makeState({ location: "clearing" });
-    const effects = handle(state, parse("north"));
-    const print = effects.find((e) => e.type === "PRINT");
-    expect(print && "cls" in print ? print.cls : "").toBe("bad");
+  it("look with flashlight gives prose", () => {
+    const state = makeState({
+      location: "forest",
+      flags: { forestStep: 0 },
+      inventory: ["flashlight"],
+      turns: 1,
+    });
+    const text = firstPrint(state, "look");
+    expect(text.length).toBeGreaterThan(0);
+    expect(text).not.toMatch(/too dark/i);
   });
 });
 
-describe("handle — house extra branches", () => {
-  it("look at note/fridge shows note text", () => {
-    const text = firstPrint(makeState(), "look note");
-    expect(text).toMatch(/PICK UP MOM/i);
+describe("handle — road", () => {
+  it("look returns a road description", () => {
+    const state = makeState({ location: "road" });
+    const text = firstPrint(state, "look");
+    expect(text.length).toBeGreaterThan(0);
   });
 
-  it("look at keys shows key description", () => {
-    const text = firstPrint(makeState(), "look keys");
-    expect(text).toMatch(/keyring/i);
-  });
-
-  it("look at unknown noun falls through", () => {
-    const effects = handle(makeState(), parse("look sofa"));
-    const print = effects.find((e) => e.type === "PRINT");
-    expect(print && "cls" in print ? print.cls : "").toBe("bad");
-  });
-
-  it("open door when already open reports already open", () => {
-    const state = makeState({
-      inventory: ["keys"],
-      flags: { hasOpened: true },
-    });
-    const text = firstPrint(state, "open door");
-    expect(text).toMatch(/already open/i);
-  });
-
-  it("use keys opens door", () => {
-    const state = makeState({ inventory: ["keys"] });
-    const effects = handle(state, parse("use keys"));
-    expect(effects).toContainEqual({
-      type: "SET_FLAG",
-      key: "hasOpened",
-      value: true,
-    });
-  });
-
-  it("drop item in house", () => {
-    const text = firstPrint(makeState(), "drop keys");
-    expect(text).toMatch(/rug/i);
-  });
-
-  it("take non-keys item returns bad print", () => {
-    const effects = handle(makeState(), parse("take sofa"));
+  it("unknown verb returns bad print", () => {
+    const state = makeState({ location: "road" });
+    const effects = handle(state, parse("dance"));
     const print = effects.find((e) => e.type === "PRINT");
     expect(print && "cls" in print ? print.cls : "").toBe("bad");
   });
@@ -245,15 +295,18 @@ describe("handle — yell", () => {
     expect(text).toMatch(/trees/i);
   });
 
-  it("yell in clearing gets an answer", () => {
-    const state = makeState({ location: "clearing" });
+  it("yell in road gets an answer", () => {
+    const state = makeState({ location: "road" });
     const text = firstPrint(state, "yell");
     expect(text).toMatch(/answers/i);
   });
 
-  it("yell in house disturbs the neighbor's dog", () => {
-    const text = firstPrint(makeState(), "yell");
-    expect(text).toMatch(/dog/i);
+  it("yell in tent uses default text", () => {
+    const state = makeState({ location: "tent" });
+    const text = firstPrint(state, "yell");
+    expect(text.length).toBeGreaterThan(0);
+    expect(text).not.toMatch(/trees/i);
+    expect(text).not.toMatch(/answers/i);
   });
 });
 
@@ -268,8 +321,14 @@ describe("handle — forest extra branches", () => {
     expect(text).toMatch(/Pine needles/i);
   });
 
-  it("look without noun gives forest description", () => {
-    const text = firstPrint(forestState(0), "look");
+  it("look without noun gives forest description (flashlight)", () => {
+    const state = makeState({
+      location: "forest",
+      flags: { forestStep: 0 },
+      inventory: ["flashlight"],
+      turns: 1,
+    });
+    const text = firstPrint(state, "look");
     expect(text.length).toBeGreaterThan(0);
   });
 
