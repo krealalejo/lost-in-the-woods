@@ -64,6 +64,8 @@ const VERB_ALIASES: Record<string, string> = {
   quit: "quit",
   restart: "restart",
   reset: "restart",
+  leave: "leave",
+  exit: "leave",
 };
 
 export function parse(raw: string): ParsedCommand {
