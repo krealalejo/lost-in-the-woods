@@ -3,7 +3,7 @@ interface Props {
   turns: number;
 }
 
-export function HUD({ location, turns }: Props) {
+export function Hud({ location, turns }: Readonly<Props>) {
   return (
     <div className="hud">
       <div className="title">{"// LOST IN THE WOODS"}&nbsp;v0.3a</div>

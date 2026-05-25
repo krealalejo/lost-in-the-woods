@@ -12,7 +12,7 @@ export function InputRow({
   onSubmit,
   onHistoryPrev,
   onHistoryNext,
-}: Props) {
+}: Readonly<Props>) {
   const [value, setValue] = useState("");
 
   const handleSubmit = useCallback(() => {

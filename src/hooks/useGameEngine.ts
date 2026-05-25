@@ -65,7 +65,7 @@ export function useGameEngine(story: Story) {
           await new Promise<void>((r) => setTimeout(r, effect.ms));
           break;
         case "RELOAD":
-          window.location.reload();
+          globalThis.location.reload();
           break;
       }
     },
@@ -100,11 +100,11 @@ export function useGameEngine(story: Story) {
       pushLine(trimmed, "cmd");
 
       const cmd = story.parse(trimmed);
-      if (!cmd.verb) {
-        await typeLine("I don't understand that.", "bad");
-      } else {
+      if (cmd.verb) {
         const effects = story.handle(stateRef.current, cmd);
         await processEffects(effects);
+      } else {
+        await typeLine("I don't understand that.", "bad");
       }
 
       setBusyBoth(false);

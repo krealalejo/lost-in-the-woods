@@ -2,7 +2,7 @@ interface Props {
   mapHtml: string;
 }
 
-export function MapPanel({ mapHtml }: Props) {
+export function MapPanel({ mapHtml }: Readonly<Props>) {
   return (
     <div className="map-wrap">
       <span className="tag">[ MAP ]</span>

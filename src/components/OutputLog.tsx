@@ -5,7 +5,7 @@ interface Props {
   lines: OutputLine[];
 }
 
-export function OutputLog({ lines }: Props) {
+export function OutputLog({ lines }: Readonly<Props>) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

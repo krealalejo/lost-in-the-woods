@@ -108,15 +108,15 @@ describe("handle — house", () => {
   });
 });
 
-describe("handle — forest sequence", () => {
-  function forestState(step: number, turns = 1): GameState {
-    return makeState({
-      location: "forest",
-      flags: { forestStep: step },
-      turns,
-    });
-  }
+function forestState(step: number, turns = 1): GameState {
+  return makeState({
+    location: "forest",
+    flags: { forestStep: step },
+    turns,
+  });
+}
 
+describe("handle — forest sequence", () => {
   it("correct step advances forestStep", () => {
     const state = forestState(0);
     const dir = FOREST_SEQUENCE[0];
@@ -141,7 +141,7 @@ describe("handle — forest sequence", () => {
 
   it("completing sequence enters clearing", () => {
     const state = forestState(FOREST_SEQUENCE.length - 1, 1);
-    const lastDir = FOREST_SEQUENCE[FOREST_SEQUENCE.length - 1];
+    const lastDir = FOREST_SEQUENCE.at(-1)!;
     const effects = handle(state, parse(lastDir));
     expect(effects).toContainEqual({
       type: "SET_LOCATION",
@@ -151,7 +151,7 @@ describe("handle — forest sequence", () => {
 
   it("entering clearing with turns <= 25 triggers win", () => {
     const state = forestState(FOREST_SEQUENCE.length - 1, 1);
-    const lastDir = FOREST_SEQUENCE[FOREST_SEQUENCE.length - 1];
+    const lastDir = FOREST_SEQUENCE.at(-1)!;
     const effects = handle(state, parse(lastDir));
     const endGame = effects.find((e) => e.type === "END_GAME");
     expect(endGame && "ending" in endGame ? endGame.ending : "").toBe("win");
@@ -159,7 +159,7 @@ describe("handle — forest sequence", () => {
 
   it("entering clearing with turns > 25 triggers vampires", () => {
     const state = forestState(FOREST_SEQUENCE.length - 1, 26);
-    const lastDir = FOREST_SEQUENCE[FOREST_SEQUENCE.length - 1];
+    const lastDir = FOREST_SEQUENCE.at(-1)!;
     const effects = handle(state, parse(lastDir));
     const endGame = effects.find((e) => e.type === "END_GAME");
     expect(endGame && "ending" in endGame ? endGame.ending : "").toBe(
@@ -258,14 +258,6 @@ describe("handle — yell", () => {
 });
 
 describe("handle — forest extra branches", () => {
-  function forestState(step: number, turns = 1): GameState {
-    return makeState({
-      location: "forest",
-      flags: { forestStep: step },
-      turns,
-    });
-  }
-
   it("look at trees", () => {
     const text = firstPrint(forestState(0), "look trees");
     expect(text).toMatch(/trees/i);

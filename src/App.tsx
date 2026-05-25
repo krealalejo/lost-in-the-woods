@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { CRTScreen } from "./components/CRTScreen";
-import { HUD } from "./components/HUD";
+import { Hud } from "./components/HUD";
 import { InputRow } from "./components/InputRow";
 import { MapPanel } from "./components/MapPanel";
 import { OutputLog } from "./components/OutputLog";
@@ -26,8 +26,8 @@ export function App() {
   );
 
   useEffect(() => {
-    const mql = window.matchMedia("(pointer: coarse), (max-width: 720px)");
-    const mqlNarrow = window.matchMedia("(max-width: 520px)");
+    const mql = globalThis.matchMedia("(pointer: coarse), (max-width: 720px)");
+    const mqlNarrow = globalThis.matchMedia("(max-width: 520px)");
 
     const apply = () => {
       document.body.classList.toggle("is-mobile", mql.matches);
@@ -44,25 +44,23 @@ export function App() {
   }, []);
 
   return (
-    <>
-      <CRTScreen doom={isDoom}>
-        <HUD location={state.location} turns={state.turns} />
-        <MapPanel mapHtml={mapHtml} />
-        <OutputLog lines={lines} />
-        <InputRow
-          disabled={isDisabled}
-          onSubmit={handleCommand}
-          onHistoryPrev={historyPrev}
-          onHistoryNext={historyNext}
-        />
-        <TouchPad disabled={isDisabled} onCommand={handleCommand} />
-        <div className="footer-help">
-          try: <kbd>look</kbd> <kbd>north</kbd> <kbd>take keys</kbd>{" "}
-          <kbd>inventory</kbd> <kbd>help</kbd> &nbsp;|&nbsp; <kbd>↑</kbd>
-          {"/"}
-          <kbd>↓</kbd> recall
-        </div>
-      </CRTScreen>
-    </>
+    <CRTScreen doom={isDoom}>
+      <Hud location={state.location} turns={state.turns} />
+      <MapPanel mapHtml={mapHtml} />
+      <OutputLog lines={lines} />
+      <InputRow
+        disabled={isDisabled}
+        onSubmit={handleCommand}
+        onHistoryPrev={historyPrev}
+        onHistoryNext={historyNext}
+      />
+      <TouchPad disabled={isDisabled} onCommand={handleCommand} />
+      <div className="footer-help">
+        try: <kbd>look</kbd> <kbd>north</kbd> <kbd>take keys</kbd>{" "}
+        <kbd>inventory</kbd> <kbd>help</kbd> &nbsp;|&nbsp; <kbd>↑</kbd>
+        {"/"}
+        <kbd>↓</kbd> recall
+      </div>
+    </CRTScreen>
   );
 }

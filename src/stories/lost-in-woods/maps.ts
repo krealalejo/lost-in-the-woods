@@ -27,64 +27,64 @@ export const MAPS: Record<string, string> = {
          {D:to the driveway -> road}
 `,
 
-  forest: `
+  forest: String.raw`
   ^      ^      ^      ^      ^      ^      ^      ^      ^      ^
- /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\
+ /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\
   |      |      |      |      |      |      |      |      |      |
        {F:.}          {F:'}          {F:,}          {F:;}          {F:.}          {F:'}
   ^      ^      ^      ^      ^      ^      ^      ^      ^      ^
- /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\
+ /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\
   |  {F:'}   |   {F:.}  |  {F:,}   |   {F:;}  |  {F:.}   |   {F:'}  |  {F:,}   |   {F:.}  |  {F:;}   |
        {F:,}          {F:;}          {F:.}          {F:'}          {F:,}          {F:.}
   ^      ^      ^      ^      {P}      ^      ^      ^      ^      ^
- /T\\    /T\\    /T\\    /T\\    /|\\    /T\\    /T\\    /T\\    /T\\    /T\\
+ /T\    /T\    /T\    /T\    /|\    /T\    /T\    /T\    /T\    /T\
   |   {F:.}  |  {F:,}   |   {F:'}  |  {F:.}   {D:you}    |   {F:;}  |  {F:,}   |  {F:'}   |   {F:.}  |
        {F:;}          {F:'}          {F:.}          {F:,}          {F:;}          {F:'}
   ^      ^      ^      ^      ^      ^      ^      ^      ^      ^
- /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\
+ /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\
   |  {F:,}   |  {F:'}   |   {F:.}  |  {F:;}   |  {F:,}   |  {F:'}   |   {F:.}  |  {F:;}   |  {F:,}   |
        {F:'}          {F:.}          {F:;}          {F:'}          {F:.}          {F:,}
   ^      ^      ^      ^      ^      ^      ^      ^      ^      ^
- /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\    /T\\
+ /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\    /T\
   |      |      |      |      |      |      |      |      |      |
 
          {D:~ the trees look identical in every direction ~}
          {D:~ you cannot see the sky through the canopy   ~}
 `,
 
-  clearing: `
+  clearing: String.raw`
   ^     ^     ^                                          ^     ^
- /T\\   /T\\   /T\\        {F:.   .   .   .   .   .}          /T\\   /T\\
+ /T\   /T\   /T\        {F:.   .   .   .   .   .}          /T\   /T\
   |     |     |                                          |     |
                       .-------------------.
-                     /                     \\
+                     /                     \
   ^      {F:.}            |     .---------.      |          {F:.}        ^
- /T\\                 |    /  {LBL:MOON}     \\     |                  /T\\
+ /T\                 |    /  {LBL:MOON}     \     |                  /T\
   |         {F:.}        |   |    full     |    |       {F:.}            |
-                     |    \\           /    |
-                      \\    '---------'    /
+                     |    \           /    |
+                      \    '---------'    /
   ^                    '-------------------'                      ^
- /T\\                                                            /T\\
+ /T\                                                            /T\
   |        {F:.}                {P}                  {F:.}                |
                             {D:(player)}
 
   ^                {F:.   .   .   .   .   .   .   .}                ^
- /T\\                                                            /T\\
+ /T\                                                            /T\
   |                                                              |
 
            {D:~ far away: blinking red runway lights ~}
 
   ^     ^     ^                                          ^     ^
- /T\\   /T\\   /T\\                                        /T\\   /T\\
+ /T\   /T\   /T\                                        /T\   /T\
 `,
 
-  ending_vampires: `
+  ending_vampires: String.raw`
 
          ___          ___          ___          ___          ___
-       _/   \\_      _/   \\_      _/   \\_      _/   \\_      _/   \\_
-      / {N:o   o} \\    / {N:o   o} \\    / {N:o   o} \\    / {N:o   o} \\    / {N:o   o} \\
-     |   \\_/   |    |   \\_/   |    |   \\_/   |    |   \\_/   |    |   \\_/   |
-      \\__^__/        \\__^__/        \\__^__/        \\__^__/        \\__^__/
+       _/   \_      _/   \_      _/   \_      _/   \_      _/   \_
+      / {N:o   o} \    / {N:o   o} \    / {N:o   o} \    / {N:o   o} \    / {N:o   o} \
+     |   \_/   |    |   \_/   |    |   \_/   |    |   \_/   |    |   \_/   |
+      \__^__/        \__^__/        \__^__/        \__^__/        \__^__/
         | |            | |            | |            | |            | |
         |_|            |_|            |_|            |_|            |_|
 
@@ -99,7 +99,7 @@ export function renderMapTokens(raw: string): string {
     .replaceAll(">", "&gt;")
     .replaceAll("{P}", '<span class="player">@</span>')
     .replaceAll("{K}", '<span class="note">K</span>')
-    .replace(/\{N\}/g, '<span class="note">N</span>')
+    .replaceAll("{N}", '<span class="note">N</span>')
     .replace(/\{N:([^}]+)\}/g, '<span class="note">$1</span>')
     .replace(/\{LBL:([^}]+)\}/g, '<span class="label">$1</span>')
     .replace(/\{D:([^}]+)\}/g, '<span class="dim">$1</span>')

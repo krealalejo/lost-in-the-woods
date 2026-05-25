@@ -5,7 +5,7 @@ interface Props {
   children: ReactNode;
 }
 
-export function CRTScreen({ doom, children }: Props) {
+export function CRTScreen({ doom, children }: Readonly<Props>) {
   return (
     <div className={`crt${doom ? " doom" : ""}`}>
       <div className="screen">{children}</div>

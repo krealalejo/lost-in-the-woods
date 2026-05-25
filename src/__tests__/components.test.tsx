@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CRTScreen } from "../components/CRTScreen";
-import { HUD } from "../components/HUD";
+import { Hud } from "../components/HUD";
 import { MapPanel } from "../components/MapPanel";
 import { TouchPad } from "../components/TouchPad";
 
@@ -37,12 +37,12 @@ describe("CRTScreen", () => {
 
 describe("HUD", () => {
   it("renders location uppercased", () => {
-    render(<HUD location="forest" turns={0} />);
+    render(<Hud location="forest" turns={0} />);
     expect(screen.getByText(/FOREST/)).toBeTruthy();
   });
 
   it("renders turns zero-padded to 4 digits", () => {
-    render(<HUD location="house" turns={7} />);
+    render(<Hud location="house" turns={7} />);
     expect(screen.getByText(/0007/)).toBeTruthy();
   });
 });

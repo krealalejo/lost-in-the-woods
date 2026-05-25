@@ -16,7 +16,7 @@ const BUTTONS = [
   { label: "HELP", cmd: "help" },
 ] as const;
 
-export function TouchPad({ disabled, onCommand }: Props) {
+export function TouchPad({ disabled, onCommand }: Readonly<Props>) {
   return (
     <div className="touchpad" aria-label="quick commands">
       {BUTTONS.map(({ label, cmd }) => (
