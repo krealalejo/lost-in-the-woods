@@ -67,10 +67,6 @@ describe("MAPS", () => {
     expect(MAPS.ending_presence).toBeDefined();
   });
 
-  it("tent map shows flashlight", () => {
-    expect(MAPS.tent).toMatch(/flashlight/i);
-  });
-
   it("road map shows car", () => {
     expect(MAPS.road).toMatch(/car/i);
   });

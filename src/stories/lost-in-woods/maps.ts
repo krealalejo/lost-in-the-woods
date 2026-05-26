@@ -1,30 +1,7 @@
+import tentArt from "./panels/tent-art.txt?raw";
+
 export const MAPS: Record<string, string> = {
-  tent: String.raw`
-    {D:~ inside the tent ~}
-
-           /\
-          /  \
-         / {F:'} {F:.}\
-        /  {F:,}   {F:;} \
-       /____________\
-      /              \
-     / {F:.}    {F:'}    {F:,}  {F:.}\
-    /________________\
-   |                  |
-   |   {D:sleeping bag}    |
-   |                  |
-   |  .-----------.   |
-   |  | {N:flashlight} |   |
-   |  '-----------'   |
-   |   {D:^ take it}      |
-   |                  |
-   |        {P}         |
-   |      {D:<- you}      |
-   |__________________|
-
-         {D:~ something circles outside ~}
-         {D:~ you can hear its breathing  ~}
-`,
+  tent: tentArt,
 
   forest: String.raw`
   ^      ^      ^      ^      ^      ^      ^      ^      ^      ^
@@ -80,6 +57,29 @@ export const MAPS: Record<string, string> = {
 
          {D:~ the car is just ahead ~}
          {D:~ do not look at the tree line ~}
+`,
+
+  ending_win: String.raw`
+
+    {F:|}   {F:|}   {F:|}   {F:|}   {F:|}   {F:|}   {F:|}   {F:|}   {F:|}   {F:|}   {F:|}
+   {F:/|\} {F:/|\} {F:/|\} {F:/|\} {F:/|\} {F:/|\} {F:/|\} {F:/|\} {F:/|\} {F:/|\} {F:/|\}
+  {N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}{N:/ | \}
+   {N:| | |}{N:| | |}{N:| | |}{N:| | |}{N:| | |}{N:| | |}{N:| | |}{N:| | |}{N:| | |}{N:| | |}{N:| | |}
+   {N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}{N:|_|_|}
+
+  ================================================= {D:old forest road}
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                                   .-------.
+                                  /  O   O  \   {D:==>}
+                                 |  -------  |
+                                 |___________|
+                                  | | | | | |
+  ================================='-'-'-'-'-'===================>
+
+         {D:~ the figures watch until your headlights disappear ~}
+
+         {LBL:Y O U   S U R V I V E D}
 `,
 
   ending_presence: String.raw`
