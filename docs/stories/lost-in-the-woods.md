@@ -70,9 +70,3 @@ The player fails to input the exact sequence. Any mistake in the route coordinat
 3. *"You find three stones stacked on the ground. You did not place them there. Something is guiding you in circles."*
 4. *"Far away, you hear a child crying. It sounds wrong, as if something is imitating the noise."*
 5. *"You check the compass, but the needle spins wildly without stopping. You are completely disoriented."*
-
----
-
-## TODO
-añadir un sistema para que el jugador pueda encontrar pistas
-añadir notas de lore que el jugador pueda encontrar
