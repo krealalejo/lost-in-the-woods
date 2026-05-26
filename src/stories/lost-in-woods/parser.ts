@@ -84,8 +84,6 @@ export function parse(raw: string): ParsedCommand {
 
   const cleaned = tokens.filter((t) => !FILLERS.has(t));
   if (!cleaned.length) {
-    if (DIR_ALIASES[tokens[0]])
-      return { verb: "move", noun: DIR_ALIASES[tokens[0]], raw };
     return { verb: null, noun: null, raw };
   }
 

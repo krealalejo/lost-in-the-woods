@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ITEMS } from "../stories/lost-in-woods/handlers";
 import { lostInWoodsStory } from "../stories/lost-in-woods/index";
 
 describe("lostInWoodsStory", () => {
@@ -14,7 +15,7 @@ describe("lostInWoodsStory", () => {
   it("initialState returns fresh object each call", () => {
     const a = lostInWoodsStory.initialState();
     const b = lostInWoodsStory.initialState();
-    a.inventory.push("test");
+    a.inventory.push({ name: "test", description: "" });
     expect(b.inventory).toHaveLength(0);
   });
 
@@ -45,6 +46,13 @@ describe("lostInWoodsStory", () => {
     expect(html).toMatch(/P\s+R\s+E\s+S\s+E\s+N\s+C\s+E/i);
   });
 
+  it("getMap returns win map when ended=win", () => {
+    const state = { ...lostInWoodsStory.initialState(), ended: "win" };
+    const html = lostInWoodsStory.getMap(state);
+    expect(typeof html).toBe("string");
+    expect(html.length).toBeGreaterThan(0);
+  });
+
   it("getMap returns empty string for unknown location", () => {
     const state = { ...lostInWoodsStory.initialState(), location: "nowhere" };
     const html = lostInWoodsStory.getMap(state);
@@ -64,7 +72,7 @@ describe("lostInWoodsStory", () => {
   it("getMapItems returns empty once flashlight is taken", () => {
     const state = {
       ...lostInWoodsStory.initialState(),
-      inventory: ["flashlight"],
+      inventory: [ITEMS.flashlight],
     };
     expect(lostInWoodsStory.getMapItems!(state)).toEqual([]);
   });

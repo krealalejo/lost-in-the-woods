@@ -112,4 +112,19 @@ describe("useTypewriter", () => {
     expect(result.current.lines[0].id).toBe(0);
     expect(result.current.lines[1].id).toBe(1);
   });
+
+  it("typeLine updates only the matching line when multiple lines exist", async () => {
+    const { result } = renderHook(() => useTypewriter());
+    act(() => {
+      result.current.pushLine("existing");
+    });
+    act(() => {
+      result.current.typeLine("typed");
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
+    expect(result.current.lines[0].text).toBe("existing");
+    expect(result.current.lines[1].text).toBe("typed");
+  });
 });

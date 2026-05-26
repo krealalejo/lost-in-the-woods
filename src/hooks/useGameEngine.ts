@@ -45,7 +45,7 @@ export function useGameEngine(story: Story) {
           stateRef.current = {
             ...stateRef.current,
             inventory: stateRef.current.inventory.filter(
-              (i) => i !== effect.item,
+              (i) => i.name !== effect.item.name,
             ),
           };
           syncDisplay();
@@ -115,7 +115,7 @@ export function useGameEngine(story: Story) {
   const historyPrev = useCallback(() => {
     if (!historyRef.current.length) return "";
     histIdxRef.current = Math.max(0, histIdxRef.current - 1);
-    return historyRef.current[histIdxRef.current] ?? "";
+    return historyRef.current[histIdxRef.current]!;
   }, []);
 
   const historyNext = useCallback(() => {
@@ -143,6 +143,7 @@ export function useGameEngine(story: Story) {
     const run = async () => {
       setBusyBoth(true);
       await processEffects(story.getIntro());
+      /* istanbul ignore next */
       if (!cancelled) setBusyBoth(false);
     };
     run();

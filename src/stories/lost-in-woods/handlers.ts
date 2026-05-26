@@ -1,6 +1,29 @@
-import type { GameEffect, GameState } from "../../engine/types";
+import type { GameEffect, GameState, Item } from "../../engine/types";
 import type { CommandHandler, ParsedCommand } from "../types";
 import { DIR_ALIASES } from "./parser";
+
+export const ITEMS: Record<string, Item> = {
+  flashlight: {
+    name: "flashlight",
+    description:
+      "A weathered wind-up flashlight. The beam is weak but steady — good for a few hours, no more.",
+  },
+  torn_page: {
+    name: "torn page",
+    description:
+      "Day 4. Can't find the trail.\n\nCompass broke yesterday. I keep ending up at the same stone formation. I marked it with red tape this morning. The tape is gone now.\n\nSomething moved it. I hear it again at night — not an animal. Animals don't stack stones.\n\n— R.",
+  },
+  carved_sign: {
+    name: "carved sign",
+    description:
+      'A strip of bark stripped clean, letters cut deep with a knife:\n\nAKASAWA NO SASSAYAKI\n\nBelow, in a different hand, in English:\n\n"DO NOT YELL."\n\nThe warning does not say why.',
+  },
+  polaroid: {
+    name: "polaroid",
+    description:
+      'A photograph, face-down in the pine needles.\n\nYou turn it over. It shows your tent, taken from outside, the flap closed.\n\nOn the back, in blue ink: "You were sleeping."\n\nThe photo is dated tomorrow.',
+  },
+} as const;
 
 export const FOREST_SEQUENCE = [
   "north",
@@ -21,6 +44,23 @@ const FOREST_DESCRIPTIONS = [
   "You find three stones stacked on the ground. You did not place them there. Something is guiding you in circles.",
   "Far away, you hear a child crying. It sounds wrong, as if something is imitating the noise.",
   "You check the compass, but the needle spins wildly without stopping. You are completely disoriented.",
+  "The temperature drops sharply. Your breath fogs the air. The trees feel closer than before.",
+  "Something behind you snaps a branch. You spin around. Nothing is there. The sound was too deliberate to be the wind.",
+  "You pass a tree with deep scratch marks carved into the bark — too high up to be an animal, too regular to be an accident.",
+  "A sound like slow, deliberate breathing comes from somewhere above you. You do not look up.",
+  "The pine needles beneath your feet are wrong — arranged in neat radial patterns, as if placed by hand.",
+  "Your flashlight flickers. Three seconds of total darkness. In the silence, something exhales very close to your left ear. The light returns.",
+  "The ground slopes downward, then levels. You have no idea if you are still moving forward.",
+] as const;
+
+const FOREST_LOOK_DESCS = [
+  "Skeletal pines stretch in every direction. Ice crystals on the bark catch the flashlight beam like a thousand tiny eyes.",
+  "A low mist rolls between the trunks. Behind you, your own footprints have already disappeared.",
+  "The undergrowth here is crushed flat in a wide circle. Something large rested here recently.",
+  "Silence. Even the wind has stopped. The forest is listening.",
+  "You are in a small clearing. The trees form a perfect ring around you. You did not walk into any clearing.",
+  "The trees have no lower branches — stripped clean up to two meters. By something tall.",
+  "You cannot see the sky. The canopy is too thick, the darkness absolute beyond your flashlight beam.",
 ] as const;
 
 export function chain(...handlers: CommandHandler[]): CommandHandler {
@@ -42,6 +82,43 @@ function pickForestDesc(state: Readonly<GameState>): string {
   return FOREST_DESCRIPTIONS[i];
 }
 
+interface NoteEntry {
+  itemKey: string;
+  arrivalHint: string;
+  hint: string;
+  flagKey: string;
+}
+
+const NOTES_AT_STEP: Record<number, NoteEntry> = {
+  2: {
+    itemKey: "torn_page",
+    arrivalHint:
+      "You push through dense brush. Something under a flat stone nearby catches the beam of your flashlight.",
+    hint: "A torn page is pinned under a stone nearby.",
+    flagKey: "note_torn_page",
+  },
+  5: {
+    itemKey: "carved_sign",
+    arrivalHint:
+      "The trees thin slightly. Your flashlight sweeps across a large pine — its bark stripped bare, letters cut deep into the white wood.",
+    hint: "Letters are carved deep into the nearest trunk.",
+    flagKey: "note_carved_sign",
+  },
+  8: {
+    itemKey: "polaroid",
+    arrivalHint:
+      "Your foot crunches on something thin and flat in the pine needles. Not a branch.",
+    hint: "Something white and square lies at your feet.",
+    flagKey: "note_polaroid",
+  },
+};
+
+function noteHere(state: Readonly<GameState>): NoteEntry | null {
+  const entry = NOTES_AT_STEP[forestStep(state)];
+  if (!entry || state.flags[entry.flagKey]) return null;
+  return entry;
+}
+
 const handleHelp: CommandHandler = (_, cmd) => {
   if (cmd.verb !== "help") return null;
   return [
@@ -59,7 +136,7 @@ const handleHelp: CommandHandler = (_, cmd) => {
 const handleInventory: CommandHandler = (state, cmd) => {
   if (cmd.verb !== "inv") return null;
   const text = state.inventory.length
-    ? "You are carrying: " + state.inventory.join(", ") + "."
+    ? "You are carrying: " + state.inventory.map((i) => i.name).join(", ") + "."
     : "Your pockets are empty.";
   return [{ type: "PRINT", text }];
 };
@@ -151,11 +228,11 @@ const handleTentLook: CommandHandler = (state, cmd) => {
 const handleTentTake: CommandHandler = (state, cmd) => {
   if (state.location !== "tent" || cmd.verb !== "take") return null;
   if (cmd.noun === "flashlight") {
-    if (state.inventory.includes("flashlight")) {
+    if (state.inventory.some((i) => i.name === "flashlight")) {
       return [{ type: "PRINT", text: "You already have the flashlight." }];
     }
     return [
-      { type: "ADD_TO_INVENTORY", item: "flashlight" },
+      { type: "ADD_TO_INVENTORY", item: ITEMS.flashlight },
       { type: "PRINT", text: "Taken.", cls: "sys" },
     ];
   }
@@ -242,24 +319,81 @@ const handleForestLook: CommandHandler = (state, cmd) => {
       },
     ];
   }
-  if (cmd.noun) return null;
-  if (state.inventory.includes("flashlight")) {
-    return [
-      {
-        type: "PRINT",
-        text: "You sweep the flashlight beam across the undergrowth. The light catches every shadow, every shifting branch.",
-      },
-      {
-        type: "PRINT",
-        text: "The trees press in from all sides. You cannot tell which way you came from.",
-      },
-    ];
+  const note = noteHere(state);
+  if (cmd.noun) {
+    if (note && cmd.noun === ITEMS[note.itemKey].name) {
+      return [
+        {
+          type: "PRINT",
+          text: "It looks important. You should take it.",
+        },
+      ];
+    }
+    return null;
   }
-  return [{ type: "PRINT", text: "It's too dark to see anything useful." }];
+  const effects: GameEffect[] = [];
+  if (state.inventory.some((i) => i.name === "flashlight")) {
+    const step = forestStep(state);
+    effects.push({
+      type: "PRINT",
+      text: FOREST_LOOK_DESCS[step % FOREST_LOOK_DESCS.length],
+    });
+    if (note) {
+      effects.push({ type: "PRINT", text: note.hint });
+    }
+  } else {
+    effects.push({
+      type: "PRINT",
+      text: "It's too dark to see anything useful.",
+    });
+  }
+  return effects;
+};
+
+const FOREST_RED_HERRINGS: Record<string, string> = {
+  stones:
+    "You reach for the stones. Your hand stops. Something makes you leave them exactly where they are.",
+  stone:
+    "You reach for the stones. Your hand stops. Something makes you leave them exactly where they are.",
+  rocks:
+    "You reach for the stones. Your hand stops. Something makes you leave them exactly where they are.",
+  rock: "You reach for the stones. Your hand stops. Something makes you leave them exactly where they are.",
+  figure:
+    "You grab the stick figure. It falls apart — just sticks and rope. You drop it and walk faster.",
+  effigy:
+    "You grab the stick figure. It falls apart — just sticks and rope. You drop it and walk faster.",
+  doll: "You grab the stick figure. It falls apart — just sticks and rope. You drop it and walk faster.",
+  branch: "There are hundreds of branches here. None of them matter.",
+  branches: "There are hundreds of branches here. None of them matter.",
+  stick: "There are hundreds of branches here. None of them matter.",
+  sticks: "There are hundreds of branches here. None of them matter.",
+  moss: "You don't have time for that.",
+  needles: "You don't have time for that.",
+  leaves: "You don't have time for that.",
 };
 
 const handleForestTake: CommandHandler = (state, cmd) => {
   if (state.location !== "forest" || cmd.verb !== "take") return null;
+  const note = noteHere(state);
+  if (note && cmd.noun === ITEMS[note.itemKey].name) {
+    return [
+      { type: "ADD_TO_INVENTORY", item: ITEMS[note.itemKey] },
+      { type: "SET_FLAG", key: note.flagKey, value: true },
+      { type: "PRINT", text: "Taken.", cls: "sys" },
+    ];
+  }
+  if (note && cmd.noun === ITEMS[note.itemKey].name.split(" ")[0]) {
+    return [
+      {
+        type: "PRINT",
+        text: `Did you mean "${ITEMS[note.itemKey].name}"?`,
+        cls: "bad",
+      },
+    ];
+  }
+  if (cmd.noun && FOREST_RED_HERRINGS[cmd.noun]) {
+    return [{ type: "PRINT", text: FOREST_RED_HERRINGS[cmd.noun] }];
+  }
   return [{ type: "PRINT", text: "There is nothing here worth taking." }];
 };
 
@@ -293,9 +427,14 @@ const handleForestMove: CommandHandler = (state, cmd) => {
         ...enterRoadEffects(state.turns + 1),
       ];
     }
+    const noteAtNext = NOTES_AT_STEP[nextStep];
+    const arrivalDesc =
+      noteAtNext && !state.flags[noteAtNext.flagKey]
+        ? noteAtNext.arrivalHint
+        : pickForestDesc(state);
     return [
       { type: "SET_FLAG", key: "forestStep", value: nextStep },
-      { type: "PRINT", text: pickForestDesc(state) },
+      { type: "PRINT", text: arrivalDesc },
     ];
   }
 
@@ -306,6 +445,7 @@ const handleForestMove: CommandHandler = (state, cmd) => {
 };
 
 const handleForestFallback: CommandHandler = (state, cmd) => {
+  /* istanbul ignore next */
   if (state.location !== "forest") return null;
   if (cmd.verb === "open" || cmd.verb === "use") {
     return [
@@ -418,6 +558,7 @@ const handleRoadLook: CommandHandler = (state, cmd) => {
 };
 
 const handleRoadFallback: CommandHandler = (state, _cmd) => {
+  /* istanbul ignore next */
   if (state.location !== "road") return null;
   return [
     { type: "PRINT", text: "It is too late to do that now.", cls: "bad" },
@@ -459,5 +600,5 @@ export function handle(
 
   const locHandler = locationHandlers[state.location];
   const locResult = locHandler?.(state, cmd) ?? handleUnknown(state, cmd);
-  return [{ type: "INCREMENT_TURNS" }, ...(locResult ?? [])];
+  return [{ type: "INCREMENT_TURNS" }, ...locResult];
 }

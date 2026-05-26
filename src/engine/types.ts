@@ -1,6 +1,11 @@
+export interface Item {
+  name: string;
+  description: string;
+}
+
 export interface GameState {
   location: string;
-  inventory: string[];
+  inventory: Item[];
   flags: Record<string, unknown>;
   turns: number;
   ended: string | null;
@@ -17,8 +22,8 @@ export type GameEffect =
   | { type: "PRINT"; text: string; cls?: string }
   | { type: "SET_LOCATION"; location: string }
   | { type: "SET_FLAG"; key: string; value: unknown }
-  | { type: "ADD_TO_INVENTORY"; item: string }
-  | { type: "REMOVE_FROM_INVENTORY"; item: string }
+  | { type: "ADD_TO_INVENTORY"; item: Item }
+  | { type: "REMOVE_FROM_INVENTORY"; item: Item }
   | { type: "END_GAME"; ending: string }
   | { type: "DELAY"; ms: number }
   | { type: "RELOAD" }

@@ -65,6 +65,14 @@ describe("parse", () => {
     });
   });
 
+  it("normalises direction alias in noun position", () => {
+    expect(parse("look n")).toEqual({
+      verb: "look",
+      noun: "north",
+      raw: "look n",
+    });
+  });
+
   it("handles look with noun", () => {
     const result = parse("look fridge");
     expect(result.verb).toBe("look");

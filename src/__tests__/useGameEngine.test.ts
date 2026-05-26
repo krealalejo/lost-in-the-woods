@@ -156,34 +156,38 @@ describe("useGameEngine", () => {
   });
 
   it("ADD_TO_INVENTORY effect updates state", async () => {
+    const keyItem = { name: "key", description: "" };
     const story = makeStory({
-      handle: (): GameEffect[] => [{ type: "ADD_TO_INVENTORY", item: "key" }],
+      handle: (): GameEffect[] => [{ type: "ADD_TO_INVENTORY", item: keyItem }],
     });
     const { result } = await mountIdle(story);
     await act(async () => {
       await result.current.submit("take");
     });
-    expect(result.current.state.inventory).toContain("key");
+    expect(result.current.state.inventory.map((i) => i.name)).toContain("key");
   });
 
   it("REMOVE_FROM_INVENTORY effect updates state", async () => {
+    const keyItem = { name: "key", description: "" };
     const story = makeStory({
       initialState: () => ({
         location: "start",
-        inventory: ["key"],
+        inventory: [keyItem],
         flags: {},
         turns: 0,
         ended: null,
       }),
       handle: (): GameEffect[] => [
-        { type: "REMOVE_FROM_INVENTORY", item: "key" },
+        { type: "REMOVE_FROM_INVENTORY", item: keyItem },
       ],
     });
     const { result } = await mountIdle(story);
     await act(async () => {
       await result.current.submit("drop");
     });
-    expect(result.current.state.inventory).not.toContain("key");
+    expect(result.current.state.inventory.map((i) => i.name)).not.toContain(
+      "key",
+    );
   });
 
   it("INCREMENT_TURNS effect updates state", async () => {
@@ -245,6 +249,17 @@ describe("useGameEngine", () => {
     result.current.historyPrev();
     result.current.historyPrev();
     expect(result.current.historyNext()).toBe("north");
+  });
+
+  it("historyNext returns empty string when navigated past end", async () => {
+    const { result } = await mountIdle(makeStory());
+
+    await act(async () => {
+      await result.current.submit("look");
+    });
+
+    result.current.historyPrev();
+    expect(result.current.historyNext()).toBe("");
   });
 
   it("DELAY effect resolves after specified ms", async () => {

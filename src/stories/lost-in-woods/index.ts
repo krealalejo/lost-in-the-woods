@@ -55,13 +55,17 @@ function getIntro(): GameEffect[] {
 
 function getMap(state: Readonly<GameState>): string {
   let key = state.location;
-  if (state.ended === "presence") key = "ending_presence";
+  if (state.ended === "win") key = "ending_win";
+  else if (state.ended === "presence") key = "ending_presence";
   const raw = MAPS[key] ?? "";
   return renderMapTokens(raw);
 }
 
 function getMapItems(state: Readonly<GameState>): string[] {
-  if (state.location === "tent" && !state.inventory.includes("flashlight")) {
+  if (
+    state.location === "tent" &&
+    !state.inventory.some((i) => i.name === "flashlight")
+  ) {
     return ["flashlight"];
   }
   return [];
