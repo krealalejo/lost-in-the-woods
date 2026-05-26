@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import React, { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { InputRow } from "../components/InputRow";
+import { InputRow, focusInputEl } from "../components/InputRow";
 
 const noop = () => "";
 
@@ -9,6 +10,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={vi.fn()}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -22,6 +24,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={onSubmit}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -37,6 +40,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={vi.fn()}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -53,6 +57,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={onSubmit}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -67,6 +72,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={onSubmit}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -83,6 +89,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={true}
+        submitBlocked={false}
         onSubmit={onSubmit}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -99,6 +106,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={vi.fn()}
         onHistoryPrev={onHistoryPrev}
         onHistoryNext={noop}
@@ -115,6 +123,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={vi.fn()}
         onHistoryPrev={noop}
         onHistoryNext={onHistoryNext}
@@ -130,6 +139,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={vi.fn()}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -144,6 +154,7 @@ describe("InputRow", () => {
     render(
       <InputRow
         disabled={false}
+        submitBlocked={false}
         onSubmit={vi.fn()}
         onHistoryPrev={noop}
         onHistoryNext={noop}
@@ -151,5 +162,138 @@ describe("InputRow", () => {
     );
     const input = screen.getByRole("textbox");
     fireEvent.click(input);
+  });
+
+  it("onKeyUp fires syncCursor on input", () => {
+    render(
+      <InputRow
+        disabled={false}
+        submitBlocked={false}
+        onSubmit={vi.fn()}
+        onHistoryPrev={noop}
+        onHistoryNext={noop}
+      />,
+    );
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "abc" } });
+    fireEvent.keyUp(input, { key: "c" });
+  });
+
+  it("global keydown appends char when input not focused", () => {
+    render(
+      <InputRow
+        disabled={false}
+        submitBlocked={false}
+        onSubmit={vi.fn()}
+        onHistoryPrev={noop}
+        onHistoryNext={noop}
+      />,
+    );
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    input.blur();
+    fireEvent.keyDown(document, { key: "x" });
+    expect(input.value).toBe("x");
+  });
+
+  it("global keydown backspace removes last char when not focused", () => {
+    render(
+      <InputRow
+        disabled={false}
+        submitBlocked={false}
+        onSubmit={vi.fn()}
+        onHistoryPrev={noop}
+        onHistoryNext={noop}
+      />,
+    );
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "ab" } });
+    input.blur();
+    fireEvent.keyDown(document, { key: "Backspace" });
+    expect(input.value).toBe("a");
+  });
+
+  it("global keydown does nothing when disabled", () => {
+    render(
+      <InputRow
+        disabled={true}
+        submitBlocked={false}
+        onSubmit={vi.fn()}
+        onHistoryPrev={noop}
+        onHistoryNext={noop}
+      />,
+    );
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    input.blur();
+    fireEvent.keyDown(document, { key: "x" });
+    expect(input.value).toBe("");
+  });
+
+  it("global keydown does nothing when Ctrl held", () => {
+    render(
+      <InputRow
+        disabled={false}
+        submitBlocked={false}
+        onSubmit={vi.fn()}
+        onHistoryPrev={noop}
+        onHistoryNext={noop}
+      />,
+    );
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    input.blur();
+    fireEvent.keyDown(document, { key: "c", ctrlKey: true });
+    expect(input.value).toBe("");
+  });
+
+  it("global keydown does nothing when active element is a button", () => {
+    const { container } = render(
+      <div>
+        <button>click</button>
+        <InputRow
+          disabled={false}
+          submitBlocked={false}
+          onSubmit={vi.fn()}
+          onHistoryPrev={noop}
+          onHistoryNext={noop}
+        />
+      </div>,
+    );
+    const btn = container.querySelector("button")!;
+    btn.focus();
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    fireEvent.keyDown(document, { key: "x" });
+    expect(input.value).toBe("");
+  });
+
+  it("non-special key on input does not trigger history or submit", () => {
+    const onSubmit = vi.fn();
+    render(
+      <InputRow
+        disabled={false}
+        submitBlocked={false}
+        onSubmit={onSubmit}
+        onHistoryPrev={noop}
+        onHistoryNext={noop}
+      />,
+    );
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    fireEvent.keyDown(input, { key: "Tab" });
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("focusInputEl focuses ref element", () => {
+    const ref = createRef<HTMLInputElement>();
+    render(
+      <InputRow
+        disabled={false}
+        submitBlocked={false}
+        onSubmit={vi.fn()}
+        onHistoryPrev={noop}
+        onHistoryNext={noop}
+      />,
+    );
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    (ref as React.MutableRefObject<HTMLInputElement>).current = input;
+    focusInputEl(ref);
+    expect(document.activeElement).toBe(input);
   });
 });
