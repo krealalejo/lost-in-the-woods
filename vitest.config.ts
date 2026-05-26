@@ -10,13 +10,14 @@ export default mergeConfig(
       setupFiles: ["src/__tests__/setup.ts"],
       globals: true,
       coverage: {
-        provider: "istanbul",
+        provider: "v8",
         reporter: ["text", "lcov"],
         include: ["src/**/*.{ts,tsx}"],
         exclude: [
           "src/**/__tests__/**",
           "src/**/*.test.{ts,tsx}",
           "src/**/*.d.ts",
+          "src/**/types.ts",
           "src/main.tsx",
           "src/App.tsx",
         ],

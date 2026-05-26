@@ -1,4 +1,8 @@
-import { useEffect } from "react";
+import {
+  useEffect,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import type { Item } from "../engine/types";
 
 interface Props {
@@ -15,14 +19,21 @@ export function ItemModal({ item, onClose }: Readonly<Props>) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  const closeFromBackdrop = (e: ReactMouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  const closeFromKeyboard = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Escape" || e.key === "Enter" || e.key === " ") onClose();
+  };
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-box"
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div
+      className="modal-overlay"
+      onClick={closeFromBackdrop}
+      onKeyDown={closeFromKeyboard}
+    >
+      <div className="modal-box" role="dialog" aria-modal="true">
         <span className="tag">{item.name.toUpperCase()}</span>
         <p className="modal-desc">{item.description}</p>
         <button className="modal-close" onClick={onClose}>
