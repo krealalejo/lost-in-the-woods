@@ -2,7 +2,7 @@
 
 ## Summary
 
-You wake up in the middle of the night inside your tent. The cold feels unnatural, and your breath forms clouds of vapor. Outside, in the absolute darkness of the Appalachians, something heavy has just stepped on a dry branch. It is circling your tent. You have no signal. You need to reach the old forest road where you left your car. And you need to do it now.
+You wake up in the middle of the night inside your tent. The cold feels unnatural, and your breath forms clouds of vapor. Outside, in the absolute darkness of the Akasawa forest, something heavy has just stepped on a dry branch. It is circling your tent. You have no signal. You need to reach the old forest road where you left your car. And you need to do it now.
 
 **Locations:** Tent → Deep Forest → Forest Road
 

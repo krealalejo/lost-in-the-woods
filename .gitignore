@@ -10,3 +10,4 @@ coverage/
 .claude/
 src/**/*.js
 CLAUDE.md
+.planning
