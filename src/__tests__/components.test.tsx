@@ -1,7 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { BackpackPanel } from "../components/BackpackPanel";
 import { CRTScreen } from "../components/CRTScreen";
 import { Hud } from "../components/HUD";
+import { ItemModal } from "../components/ItemModal";
 import { MapPanel } from "../components/MapPanel";
 import { TouchPad } from "../components/TouchPad";
 
@@ -48,9 +50,14 @@ describe("HUD", () => {
 });
 
 describe("MapPanel", () => {
-  it("renders map HTML", () => {
+  it("renders map HTML after scan animation completes", () => {
+    vi.useFakeTimers();
     const { container } = render(<MapPanel mapHtml="<b>map</b>" />);
+    act(() => {
+      vi.runAllTimers();
+    });
     expect(container.querySelector(".map")!.innerHTML).toBe("<b>map</b>");
+    vi.useRealTimers();
   });
 
   it("does not render compass span", () => {
@@ -63,14 +70,101 @@ describe("MapPanel", () => {
     expect(container.querySelector(".tag")).toBeNull();
   });
 
-  it("renders mapItems when provided", () => {
-    render(<MapPanel mapHtml="" mapItems={["flashlight"]} />);
-    expect(screen.getByText("flashlight")).toBeTruthy();
+  it("reveals lines incrementally and stays animating mid-scan", () => {
+    vi.useFakeTimers();
+    const multiLine = "a\nb\nc\nd\ne\nf";
+    const { container } = render(<MapPanel mapHtml={multiLine} />);
+    const wrap = container.querySelector(".map-wrap") as HTMLElement;
+    expect(wrap.style.alignItems).toBe("flex-start");
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(wrap.style.alignItems).toBe("flex-start");
+    vi.useRealTimers();
+  });
+});
+
+describe("BackpackPanel", () => {
+  it("shows empty message when no items", () => {
+    const { container } = render(
+      <BackpackPanel items={[]} onItemClick={vi.fn()} />,
+    );
+    expect(container.querySelector(".backpack-empty")).toBeTruthy();
   });
 
-  it("renders no items container when mapItems is empty", () => {
-    const { container } = render(<MapPanel mapHtml="" mapItems={[]} />);
-    expect(container.querySelector(".map-items")).toBeNull();
+  it("renders item names", () => {
+    const items = [{ name: "flashlight", description: "a light" }];
+    render(<BackpackPanel items={items} onItemClick={vi.fn()} />);
+    expect(screen.getByText(/flashlight/)).toBeTruthy();
+  });
+
+  it("calls onItemClick when item clicked", () => {
+    const onItemClick = vi.fn();
+    const item = { name: "flashlight", description: "a light" };
+    render(<BackpackPanel items={[item]} onItemClick={onItemClick} />);
+    fireEvent.click(screen.getByRole("button"));
+    expect(onItemClick).toHaveBeenCalledWith(item);
+  });
+
+  it("calls onItemClick on Enter keydown", () => {
+    const onItemClick = vi.fn();
+    const item = { name: "flashlight", description: "" };
+    render(<BackpackPanel items={[item]} onItemClick={onItemClick} />);
+    fireEvent.keyDown(screen.getByRole("button"), { key: "Enter" });
+    expect(onItemClick).toHaveBeenCalledWith(item);
+  });
+
+  it("does not call onItemClick on non-Enter keydown", () => {
+    const onItemClick = vi.fn();
+    const item = { name: "flashlight", description: "" };
+    render(<BackpackPanel items={[item]} onItemClick={onItemClick} />);
+    fireEvent.keyDown(screen.getByRole("button"), { key: "Space" });
+    expect(onItemClick).not.toHaveBeenCalled();
+  });
+});
+
+describe("ItemModal", () => {
+  const item = { name: "flashlight", description: "A small light." };
+
+  it("renders item name uppercased and description", () => {
+    render(<ItemModal item={item} onClose={vi.fn()} />);
+    expect(screen.getByText("FLASHLIGHT")).toBeTruthy();
+    expect(screen.getByText("A small light.")).toBeTruthy();
+  });
+
+  it("calls onClose when Escape pressed", () => {
+    const onClose = vi.fn();
+    render(<ItemModal item={item} onClose={onClose} />);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("does not call onClose on other keys", () => {
+    const onClose = vi.fn();
+    render(<ItemModal item={item} onClose={onClose} />);
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("calls onClose when overlay clicked", () => {
+    const onClose = vi.fn();
+    const { container } = render(<ItemModal item={item} onClose={onClose} />);
+    fireEvent.click(container.querySelector(".modal-overlay")!);
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("does not close when modal-box clicked", () => {
+    const onClose = vi.fn();
+    const { container } = render(<ItemModal item={item} onClose={onClose} />);
+    fireEvent.click(container.querySelector(".modal-box")!);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("calls onClose when close button clicked", () => {
+    const onClose = vi.fn();
+    render(<ItemModal item={item} onClose={onClose} />);
+    fireEvent.click(screen.getByText("[ CLOSE ]"));
+    expect(onClose).toHaveBeenCalled();
   });
 });
 
