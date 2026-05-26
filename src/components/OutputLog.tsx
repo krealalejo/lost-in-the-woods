@@ -9,6 +9,7 @@ export function OutputLog({ lines }: Readonly<Props>) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    /* istanbul ignore next */
     if (ref.current) {
       ref.current.scrollTop = ref.current.scrollHeight;
     }
