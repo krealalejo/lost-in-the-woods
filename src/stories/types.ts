@@ -1,5 +1,23 @@
 import type { GameEffect, GameState } from "../engine/types";
 
+export const THEME_VARS = [
+  "--bg",
+  "--bg-deep",
+  "--phos",
+  "--phos-dim",
+  "--phos-faint",
+  "--phos-glow",
+  "--amber",
+  "--phos-rgb",
+  "--amber-rgb",
+  "--bg-rgb",
+  "--bg-deep-rgb",
+  "--crt-mid",
+] as const;
+
+export type ThemeVar = (typeof THEME_VARS)[number];
+export type StoryTheme = Partial<Record<ThemeVar, string>>;
+
 export interface ParsedCommand {
   verb: string | null;
   noun: string | null;
@@ -14,7 +32,9 @@ export type CommandHandler = (
 export interface Story {
   readonly id: string;
   readonly title: string;
+  readonly version?: string;
   readonly subtitle?: string;
+  readonly theme?: StoryTheme;
   readonly paths?: string[][];
   initialState(): GameState;
   getIntro(): GameEffect[];
