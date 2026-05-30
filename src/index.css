@@ -7,6 +7,11 @@
   --phos-glow: rgba(109, 255, 138, 0.55);
   --amber: #ffb84d;
   --red: #ff5a5a;
+  --phos-rgb: 109, 255, 138;
+  --amber-rgb: 255, 184, 77;
+  --bg-rgb: 4, 16, 10;
+  --bg-deep-rgb: 2, 8, 5;
+  --crt-mid: #061a10;
   --font-mono: "VT323", "JetBrains Mono", "Courier New", monospace;
 }
 
@@ -40,8 +45,8 @@ body,
   inset: 0;
   background: radial-gradient(
     ellipse at center,
-    #061a10 0%,
-    #020805 70%,
+    var(--crt-mid) 0%,
+    var(--bg-deep) 70%,
     #000 100%
   );
   overflow: hidden;
@@ -92,9 +97,9 @@ body,
   min-height: 0;
   color: var(--phos);
   text-shadow:
-    0 0 1px rgba(109, 255, 138, 0.9),
+    0 0 1px rgba(var(--phos-rgb), 0.9),
     0 0 6px var(--phos-glow),
-    0 0 18px rgba(109, 255, 138, 0.18);
+    0 0 18px rgba(var(--phos-rgb), 0.18);
   animation: flicker 4.2s infinite steps(60);
 }
 
@@ -135,6 +140,71 @@ body,
   letter-spacing: clamp(1px, 0.4vw, 4px);
 }
 
+/* ── Story picker ──────────────────────────────────────────────────────────── */
+
+.story-picker {
+  position: relative;
+}
+
+.story-picker-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: inherit;
+  letter-spacing: inherit;
+  color: var(--phos);
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  text-shadow: inherit;
+}
+
+.story-picker-btn:hover {
+  color: var(--amber);
+  text-shadow:
+    0 0 6px rgba(var(--amber-rgb), 0.85),
+    0 0 14px rgba(var(--amber-rgb), 0.4);
+}
+
+.story-picker-caret {
+  font-size: 0.6em;
+  color: var(--phos-dim);
+}
+
+.story-picker-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 50;
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  background: var(--bg-deep);
+  border: 1px solid var(--phos-faint);
+  min-width: max-content;
+}
+
+.story-picker-option {
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 2vw, 20px);
+  letter-spacing: clamp(1px, 0.3vw, 3px);
+  color: var(--phos-dim);
+  padding: 6px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.story-picker-option:hover {
+  color: var(--phos);
+  background: rgba(var(--phos-rgb), 0.06);
+}
+
+.story-picker-option.active {
+  color: var(--phos);
+}
+
 .hud .meta {
   display: flex;
   gap: clamp(10px, 2vw, 22px);
@@ -146,7 +216,7 @@ body,
 
 .hud .meta .turns {
   color: var(--amber);
-  text-shadow: 0 0 6px rgba(255, 184, 77, 0.4);
+  text-shadow: 0 0 6px rgba(var(--amber-rgb), 0.4);
 }
 
 /* ── Map row ───────────────────────────────────────────────────────────── */
@@ -170,10 +240,10 @@ body,
   border: 1px solid var(--phos-faint);
   padding: 22px 10px 14px;
   background:
-    linear-gradient(180deg, rgba(109, 255, 138, 0.05), rgba(0, 0, 0, 0)),
+    linear-gradient(180deg, rgba(var(--phos-rgb), 0.05), rgba(0, 0, 0, 0)),
     repeating-linear-gradient(
       45deg,
-      rgba(109, 255, 138, 0.02) 0 2px,
+      rgba(var(--phos-rgb), 0.02) 0 2px,
       transparent 2px 6px
     );
   position: relative;
@@ -195,7 +265,7 @@ body,
 .backpack-item {
   color: var(--phos);
   text-shadow:
-    0 0 2px rgba(109, 255, 138, 0.9),
+    0 0 2px rgba(var(--phos-rgb), 0.9),
     0 0 8px var(--phos-glow);
   word-break: break-word;
   cursor: pointer;
@@ -204,13 +274,13 @@ body,
 .backpack-item:hover {
   color: var(--amber);
   text-shadow:
-    0 0 6px rgba(255, 184, 77, 0.85),
-    0 0 14px rgba(255, 184, 77, 0.4);
+    0 0 6px rgba(var(--amber-rgb), 0.85),
+    0 0 14px rgba(var(--amber-rgb), 0.4);
 }
 
 .backpack-bullet {
   color: var(--amber);
-  text-shadow: 0 0 6px rgba(255, 184, 77, 0.85);
+  text-shadow: 0 0 6px rgba(var(--amber-rgb), 0.85);
 }
 
 .backpack-empty {
@@ -227,7 +297,7 @@ body,
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(2, 8, 5, 0.82);
+  background: rgba(var(--bg-deep-rgb), 0.82);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -237,10 +307,10 @@ body,
   position: relative;
   border: 1px solid var(--phos-faint);
   background:
-    linear-gradient(180deg, rgba(109, 255, 138, 0.07), rgba(0, 0, 0, 0)),
+    linear-gradient(180deg, rgba(var(--phos-rgb), 0.07), rgba(0, 0, 0, 0)),
     repeating-linear-gradient(
       45deg,
-      rgba(109, 255, 138, 0.02) 0 2px,
+      rgba(var(--phos-rgb), 0.02) 0 2px,
       transparent 2px 6px
     ),
     var(--bg-deep);
@@ -254,7 +324,7 @@ body,
   font-size: clamp(14px, 2vw, 20px);
   color: var(--phos);
   text-shadow:
-    0 0 2px rgba(109, 255, 138, 0.9),
+    0 0 2px rgba(var(--phos-rgb), 0.9),
     0 0 8px var(--phos-glow);
   line-height: 1.55;
   margin: 16px 0 24px;
@@ -289,10 +359,10 @@ body,
   border: 1px solid var(--phos-faint);
   padding: 22px 18px 14px;
   background:
-    linear-gradient(180deg, rgba(109, 255, 138, 0.05), rgba(0, 0, 0, 0)),
+    linear-gradient(180deg, rgba(var(--phos-rgb), 0.05), rgba(0, 0, 0, 0)),
     repeating-linear-gradient(
       45deg,
-      rgba(109, 255, 138, 0.02) 0 2px,
+      rgba(var(--phos-rgb), 0.02) 0 2px,
       transparent 2px 6px
     );
   position: relative;
@@ -337,15 +407,15 @@ body,
   overflow: hidden;
   width: 100%;
   text-shadow:
-    0 0 2px rgba(109, 255, 138, 0.9),
+    0 0 2px rgba(var(--phos-rgb), 0.9),
     0 0 8px var(--phos-glow);
 }
 
 .map .player {
   color: var(--amber);
   text-shadow:
-    0 0 6px rgba(255, 184, 77, 0.85),
-    0 0 14px rgba(255, 184, 77, 0.5);
+    0 0 6px rgba(var(--amber-rgb), 0.85),
+    0 0 14px rgba(var(--amber-rgb), 0.5);
   animation: pulse 1.1s steps(2) infinite;
 }
 
@@ -544,7 +614,7 @@ body,
 .touchpad button {
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(109, 255, 138, 0.04);
+  background: rgba(var(--phos-rgb), 0.04);
   color: var(--phos);
   border: 1px solid var(--phos-faint);
   font-family: var(--font-mono);
@@ -560,7 +630,7 @@ body,
 }
 
 .touchpad button:active {
-  background: rgba(109, 255, 138, 0.18);
+  background: rgba(var(--phos-rgb), 0.18);
   color: var(--bg-deep);
   text-shadow: none;
 }
@@ -640,20 +710,20 @@ body.is-narrow .out-wrap {
   letter-spacing: 0.1em;
   padding: 4px 8px;
   border-radius: 6px;
-  border: 1px solid rgba(109, 255, 138, 0.3);
-  background: rgba(4, 16, 10, 0.85);
+  border: 1px solid rgba(var(--phos-rgb), 0.3);
+  background: rgba(var(--bg-rgb), 0.85);
   color: var(--phos-dim);
   cursor: pointer;
   backdrop-filter: blur(8px);
 }
 
 .dev-toggle:hover {
-  background: rgba(109, 255, 138, 0.08);
+  background: rgba(var(--phos-rgb), 0.08);
 }
 
 .dev-menu {
-  background: rgba(4, 16, 10, 0.92);
-  border: 1px solid rgba(109, 255, 138, 0.2);
+  background: rgba(var(--bg-rgb), 0.92);
+  border: 1px solid rgba(var(--phos-rgb), 0.2);
   border-radius: 10px;
   padding: 10px;
   display: flex;
@@ -668,7 +738,7 @@ body.is-narrow .out-wrap {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(109, 255, 138, 0.45);
+  color: rgba(var(--phos-rgb), 0.45);
   padding-bottom: 2px;
 }
 
@@ -681,12 +751,12 @@ body.is-narrow .out-wrap {
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  background: rgba(109, 255, 138, 0.08);
+  background: rgba(var(--phos-rgb), 0.08);
   color: var(--phos);
 }
 
 .dev-btn:hover:not(:disabled) {
-  background: rgba(109, 255, 138, 0.16);
+  background: rgba(var(--phos-rgb), 0.16);
 }
 
 .dev-btn:disabled {
@@ -701,6 +771,6 @@ body.is-narrow .out-wrap {
 
 .dev-hr {
   border: none;
-  border-top: 1px solid rgba(109, 255, 138, 0.12);
+  border-top: 1px solid rgba(var(--phos-rgb), 0.12);
   margin: 2px 0;
 }
