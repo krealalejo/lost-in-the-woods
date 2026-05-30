@@ -74,6 +74,7 @@ function getMapItems(state: Readonly<GameState>): string[] {
 export const lostInWoodsStory: Story = {
   id: "lost-in-woods",
   title: "LOST IN THE WOODS",
+  version: "v0.3a",
   subtitle: "a parser adventure",
 
   initialState: () => ({ ...INITIAL_STATE, flags: {}, inventory: [] }),

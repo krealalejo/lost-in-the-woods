@@ -565,9 +565,9 @@ const handleRoadFallback: CommandHandler = (state, _cmd) => {
   ];
 };
 
-const handleUnknown: CommandHandler = () => {
+function handleUnknown(): GameEffect[] {
   return [{ type: "PRINT", text: "You can't do that here.", cls: "bad" }];
-};
+}
 
 const tentHandler = chain(
   handleTentLook,
@@ -599,6 +599,6 @@ export function handle(
   if (universal) return [{ type: "INCREMENT_TURNS" }, ...universal];
 
   const locHandler = locationHandlers[state.location];
-  const locResult = locHandler?.(state, cmd) ?? handleUnknown(state, cmd);
+  const locResult = locHandler?.(state, cmd) ?? handleUnknown();
   return [{ type: "INCREMENT_TURNS" }, ...locResult];
 }
