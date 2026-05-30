@@ -37,14 +37,37 @@ describe("CRTScreen", () => {
   });
 });
 
+const hudProps = {
+  stories: [
+    {
+      id: "test",
+      title: "TEST STORY",
+      version: "v0.1",
+      initialState: () => ({
+        location: "",
+        inventory: [],
+        flags: {},
+        turns: 0,
+        ended: null,
+      }),
+      getIntro: () => [],
+      getMap: () => "",
+      parse: (r: string) => ({ verb: null, noun: null, raw: r }),
+      handle: () => [],
+    },
+  ],
+  activeStoryId: "test",
+  onStoryChange: () => {},
+};
+
 describe("HUD", () => {
   it("renders location uppercased", () => {
-    render(<Hud location="forest" turns={0} />);
+    render(<Hud location="forest" turns={0} {...hudProps} />);
     expect(screen.getByText(/FOREST/)).toBeTruthy();
   });
 
   it("renders turns zero-padded to 4 digits", () => {
-    render(<Hud location="house" turns={7} />);
+    render(<Hud location="house" turns={7} {...hudProps} />);
     expect(screen.getByText(/0007/)).toBeTruthy();
   });
 });
