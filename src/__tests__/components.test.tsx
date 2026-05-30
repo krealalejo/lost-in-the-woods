@@ -70,6 +70,86 @@ describe("HUD", () => {
     render(<Hud location="house" turns={7} {...hudProps} />);
     expect(screen.getByText(/0007/)).toBeTruthy();
   });
+
+  it("shows ??? title when no active story matches", () => {
+    render(
+      <Hud location="x" turns={0} {...hudProps} activeStoryId="missing" />,
+    );
+    expect(screen.getByText(/\/\/ \?\?\?/)).toBeTruthy();
+  });
+
+  it("opens dropdown on button click", () => {
+    render(<Hud location="x" turns={0} {...hudProps} />);
+    fireEvent.click(screen.getByRole("button"));
+    expect(screen.getByRole("listbox")).toBeTruthy();
+  });
+
+  it("closes dropdown on second button click", () => {
+    render(<Hud location="x" turns={0} {...hudProps} />);
+    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByRole("button"));
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("calls onStoryChange when different story selected", () => {
+    const second = {
+      id: "other",
+      title: "OTHER",
+      version: "v0.1",
+      initialState: () => ({
+        location: "",
+        inventory: [],
+        flags: {},
+        turns: 0,
+        ended: null,
+      }),
+      getIntro: () => [],
+      getMap: () => "",
+      parse: (r: string) => ({ verb: null, noun: null, raw: r }),
+      handle: () => [],
+    };
+    const onStoryChange = vi.fn();
+    render(
+      <Hud
+        location="x"
+        turns={0}
+        stories={[hudProps.stories[0], second]}
+        activeStoryId="test"
+        onStoryChange={onStoryChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByText(/\/\/ OTHER/));
+    expect(onStoryChange).toHaveBeenCalledWith(second);
+  });
+
+  it("does not call onStoryChange when active story re-selected", () => {
+    const onStoryChange = vi.fn();
+    render(
+      <Hud
+        location="x"
+        turns={0}
+        {...hudProps}
+        onStoryChange={onStoryChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByRole("option"));
+    expect(onStoryChange).not.toHaveBeenCalled();
+  });
+
+  it("closes dropdown on outside mousedown", () => {
+    render(
+      <div>
+        <Hud location="x" turns={0} {...hudProps} />
+        <div data-testid="outside">outside</div>
+      </div>,
+    );
+    fireEvent.click(screen.getByRole("button"));
+    expect(screen.getByRole("listbox")).toBeTruthy();
+    fireEvent.mouseDown(screen.getByTestId("outside"));
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
 });
 
 describe("MapPanel", () => {
