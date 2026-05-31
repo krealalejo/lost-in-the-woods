@@ -100,13 +100,4 @@ export const MAPS: Record<string, string> = {
 `,
 };
 
-export function renderMapTokens(raw: string): string {
-  return raw
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll("{P}", '<span class="player">@</span>')
-    .replace(/\{N:([^}]+)\}/g, '<span class="note">$1</span>')
-    .replace(/\{LBL:([^}]+)\}/g, '<span class="label">$1</span>')
-    .replace(/\{D:([^}]+)\}/g, '<span class="dim">$1</span>')
-    .replace(/\{F:([^}]+)\}/g, '<span class="faint">$1</span>');
-}
+export { renderMapTokens } from "../utils";
