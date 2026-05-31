@@ -115,7 +115,7 @@ export function useGameEngine(story: Story) {
   const historyPrev = useCallback(() => {
     if (!historyRef.current.length) return "";
     histIdxRef.current = Math.max(0, histIdxRef.current - 1);
-    return historyRef.current[histIdxRef.current]!;
+    return historyRef.current[histIdxRef.current];
   }, []);
 
   const historyNext = useCallback(() => {

@@ -47,21 +47,25 @@ export function Hud({
         <button
           className="title story-picker-btn"
           onClick={() => setOpen((v) => !v)}
-          aria-haspopup="listbox"
+          aria-haspopup="menu"
           aria-expanded={open}
         >
           {titleText}
           <span className="story-picker-caret">{open ? "▲" : "▼"}</span>
         </button>
         {open && (
-          <ul className="story-picker-menu" role="listbox">
+          <ul className="story-picker-menu" role="menu">
             {stories.map((s) => (
               <li
                 key={s.id}
-                role="option"
+                role="menuitem"
                 aria-selected={s.id === activeStoryId}
                 className={`story-picker-option${s.id === activeStoryId ? " active" : ""}`}
                 onClick={() => handleSelect(s)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") handleSelect(s);
+                }}
+                tabIndex={0}
               >
                 {`// ${s.title} ${s.version ?? ""}`}
               </li>
