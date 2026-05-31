@@ -20,11 +20,7 @@ export function ItemModal({ item, onClose }: Readonly<Props>) {
   };
 
   return (
-    <div
-      className="modal-overlay"
-      role="presentation"
-      onClick={closeFromBackdrop}
-    >
+    <div className="modal-overlay" onClick={closeFromBackdrop}>
       <dialog className="modal-box" open aria-modal="true">
         <span className="tag">{item.name.toUpperCase()}</span>
         <p className="modal-desc">{item.description}</p>
