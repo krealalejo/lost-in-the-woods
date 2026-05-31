@@ -1,4 +1,5 @@
 import tentArt from "./panels/tent-art.txt?raw";
+export { renderMapTokens } from "../utils";
 
 export const MAPS: Record<string, string> = {
   tent: tentArt,
@@ -96,16 +97,3 @@ export const MAPS: Record<string, string> = {
           {LBL:T H E   P R E S E N C E   H A S   W O N}
 `,
 };
-
-export function renderMapTokens(raw: string): string {
-  return raw
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll("{P}", '<span class="player">@</span>')
-    .replaceAll("{K}", '<span class="note">K</span>')
-    .replaceAll("{N}", '<span class="note">N</span>')
-    .replace(/\{N:([^}]+)\}/g, '<span class="note">$1</span>')
-    .replace(/\{LBL:([^}]+)\}/g, '<span class="label">$1</span>')
-    .replace(/\{D:([^}]+)\}/g, '<span class="dim">$1</span>')
-    .replace(/\{F:([^}]+)\}/g, '<span class="faint">$1</span>');
-}

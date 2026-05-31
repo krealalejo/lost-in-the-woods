@@ -1,5 +1,6 @@
-import type { GameEffect, GameState, Item } from "../../engine/types";
-import type { CommandHandler, ParsedCommand } from "../types";
+import type { GameEffect, Item } from "../../engine/types";
+import type { CommandHandler } from "../types";
+import { chain, createHandle } from "../utils";
 
 export const ITEMS: Record<string, Item> = {
   emergency_beacon: {
@@ -13,16 +14,6 @@ export const ITEMS: Record<string, Item> = {
       "A deep-sea pressure suit. Red stenciling reads: EMERGENCY USE ONLY. The integrated life support gives four hours of air. A crack runs along the left wrist seal — not ideal, but it will hold for a fast ascent.",
   },
 } as const;
-
-function chain(...handlers: CommandHandler[]): CommandHandler {
-  return (state, cmd) => {
-    for (const h of handlers) {
-      const result = h(state, cmd);
-      if (result !== null) return result;
-    }
-    return null;
-  };
-}
 
 // ─── UNIVERSAL ────────────────────────────────────────────────────────────────
 
@@ -697,18 +688,4 @@ const locationHandlers: Record<string, CommandHandler> = {
   airlock: airlockHandler,
 };
 
-function handleUnknown(): GameEffect[] {
-  return [{ type: "PRINT", text: "You can't do that here.", cls: "bad" }];
-}
-
-export function handle(
-  state: Readonly<GameState>,
-  cmd: ParsedCommand,
-): GameEffect[] {
-  const universal = universalHandler(state, cmd);
-  if (universal) return [{ type: "INCREMENT_TURNS" }, ...universal];
-
-  const locHandler = locationHandlers[state.location];
-  const locResult = locHandler?.(state, cmd) ?? handleUnknown();
-  return [{ type: "INCREMENT_TURNS" }, ...locResult];
-}
+export const handle = createHandle(universalHandler, locationHandlers);

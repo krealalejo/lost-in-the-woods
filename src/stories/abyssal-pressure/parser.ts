@@ -1,22 +1,4 @@
-import type { ParsedCommand } from "../types";
-
-const FILLERS = new Set([
-  "the",
-  "a",
-  "an",
-  "to",
-  "at",
-  "into",
-  "on",
-  "onto",
-  "in",
-  "with",
-  "please",
-  "go",
-  "my",
-  "of",
-  "for",
-]);
+import { createParser } from "../utils";
 
 export const DIR_ALIASES: Record<string, string> = {
   n: "north",
@@ -76,38 +58,4 @@ const VERB_ALIASES: Record<string, string> = {
   exit: "leave",
 };
 
-export function parse(raw: string): ParsedCommand {
-  const tokens = raw
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9 ?]/g, " ")
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!tokens.length) return { verb: null, noun: null, raw };
-
-  if (tokens.length === 1 && DIR_ALIASES[tokens[0]]) {
-    return { verb: "move", noun: DIR_ALIASES[tokens[0]], raw };
-  }
-
-  const cleaned = tokens.filter((t) => !FILLERS.has(t));
-  if (!cleaned.length) return { verb: null, noun: null, raw };
-
-  const verbToken = cleaned[0];
-  let nounToken = cleaned.slice(1).join(" ");
-
-  if (DIR_ALIASES[verbToken] && !nounToken) {
-    return { verb: "move", noun: DIR_ALIASES[verbToken], raw };
-  }
-
-  const verb = VERB_ALIASES[verbToken] ?? verbToken;
-
-  if (nounToken) {
-    const firstWord = nounToken.split(" ")[0];
-    if (DIR_ALIASES[firstWord]) {
-      nounToken = DIR_ALIASES[firstWord];
-    }
-  }
-
-  return { verb, noun: nounToken || null, raw };
-}
+export const parse = createParser(DIR_ALIASES, VERB_ALIASES);

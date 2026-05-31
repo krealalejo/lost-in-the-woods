@@ -1,5 +1,6 @@
 import type { GameEffect, GameState, Item } from "../../engine/types";
-import type { CommandHandler, ParsedCommand } from "../types";
+import type { CommandHandler } from "../types";
+import { chain, createHandle } from "../utils";
 import { DIR_ALIASES } from "./parser";
 
 export const ITEMS: Record<string, Item> = {
@@ -62,16 +63,6 @@ const FOREST_LOOK_DESCS = [
   "The trees have no lower branches — stripped clean up to two meters. By something tall.",
   "You cannot see the sky. The canopy is too thick, the darkness absolute beyond your flashlight beam.",
 ] as const;
-
-export function chain(...handlers: CommandHandler[]): CommandHandler {
-  return (state, cmd) => {
-    for (const h of handlers) {
-      const result = h(state, cmd);
-      if (result !== null) return result;
-    }
-    return null;
-  };
-}
 
 function forestStep(state: Readonly<GameState>): number {
   return (state.flags.forestStep as number) ?? 0;
@@ -565,10 +556,6 @@ const handleRoadFallback: CommandHandler = (state, _cmd) => {
   ];
 };
 
-function handleUnknown(): GameEffect[] {
-  return [{ type: "PRINT", text: "You can't do that here.", cls: "bad" }];
-}
-
 const tentHandler = chain(
   handleTentLook,
   handleTentTake,
@@ -591,14 +578,4 @@ const locationHandlers: Record<string, CommandHandler> = {
   road: roadHandler,
 };
 
-export function handle(
-  state: Readonly<GameState>,
-  cmd: ParsedCommand,
-): GameEffect[] {
-  const universal = universalHandler(state, cmd);
-  if (universal) return [{ type: "INCREMENT_TURNS" }, ...universal];
-
-  const locHandler = locationHandlers[state.location];
-  const locResult = locHandler?.(state, cmd) ?? handleUnknown();
-  return [{ type: "INCREMENT_TURNS" }, ...locResult];
-}
+export const handle = createHandle(universalHandler, locationHandlers);
