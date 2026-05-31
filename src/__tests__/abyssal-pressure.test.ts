@@ -5,6 +5,7 @@ import { abyssalPressureStory } from "../stories/abyssal-pressure/index";
 import { MAPS, renderMapTokens } from "../stories/abyssal-pressure/maps";
 import { DIR_ALIASES, parse } from "../stories/abyssal-pressure/parser";
 import { ALL_STORIES } from "../stories/index";
+import { makeGameHelpers } from "./game-test-utils";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -19,21 +20,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
   };
 }
 
-function effectTypes(state: GameState, input: string) {
-  return handle(state, parse(input)).map((e) => e.type);
-}
-
-function firstPrint(state: GameState, input: string): string {
-  const effects = handle(state, parse(input));
-  const p = effects.find((e) => e.type === "PRINT");
-  return p && "text" in p ? p.text : "";
-}
-
-function allPrints(state: GameState, input: string): string[] {
-  return handle(state, parse(input))
-    .filter((e) => e.type === "PRINT")
-    .map((e) => ("text" in e ? e.text : ""));
-}
+const { effectTypes, firstPrint, allPrints } = makeGameHelpers(handle, parse);
 
 // ─── parser ──────────────────────────────────────────────────────────────────
 

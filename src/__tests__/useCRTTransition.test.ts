@@ -54,11 +54,9 @@ describe("useCRTTransition", () => {
 
     const backdrop = document.createElement("div");
     const line = document.createElement("div");
-    (
-      result.current.backdropRef as React.MutableRefObject<HTMLDivElement>
-    ).current = backdrop;
-    (result.current.lineRef as React.MutableRefObject<HTMLDivElement>).current =
-      line;
+    (result.current.backdropRef as { current: HTMLDivElement }).current =
+      backdrop;
+    (result.current.lineRef as { current: HTMLDivElement }).current = line;
 
     const onSwitch = vi.fn();
     result.current.startTransition(onSwitch);

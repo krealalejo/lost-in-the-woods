@@ -81,14 +81,14 @@ describe("HUD", () => {
   it("opens dropdown on button click", () => {
     render(<Hud location="x" turns={0} {...hudProps} />);
     fireEvent.click(screen.getByRole("button"));
-    expect(screen.getByRole("listbox")).toBeTruthy();
+    expect(screen.getByRole("menu")).toBeTruthy();
   });
 
   it("closes dropdown on second button click", () => {
     render(<Hud location="x" turns={0} {...hudProps} />);
     fireEvent.click(screen.getByRole("button"));
     fireEvent.click(screen.getByRole("button"));
-    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(screen.queryByRole("menu")).toBeNull();
   });
 
   it("calls onStoryChange when different story selected", () => {
@@ -134,7 +134,7 @@ describe("HUD", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button"));
-    fireEvent.click(screen.getByRole("option"));
+    fireEvent.click(screen.getByRole("menuitem"));
     expect(onStoryChange).not.toHaveBeenCalled();
   });
 
@@ -146,9 +146,9 @@ describe("HUD", () => {
       </div>,
     );
     fireEvent.click(screen.getByRole("button"));
-    expect(screen.getByRole("listbox")).toBeTruthy();
+    expect(screen.getByRole("menu")).toBeTruthy();
     fireEvent.mouseDown(screen.getByTestId("outside"));
-    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(screen.queryByRole("menu")).toBeNull();
   });
 });
 
@@ -238,21 +238,21 @@ describe("ItemModal", () => {
   it("calls onClose when Escape pressed", () => {
     const onClose = vi.fn();
     render(<ItemModal item={item} onClose={onClose} />);
-    fireEvent.keyDown(window, { key: "Escape" });
+    fireEvent.keyDown(globalThis, { key: "Escape" });
     expect(onClose).toHaveBeenCalled();
   });
 
   it("does not call onClose on other keys", () => {
     const onClose = vi.fn();
     render(<ItemModal item={item} onClose={onClose} />);
-    fireEvent.keyDown(window, { key: "Enter" });
+    fireEvent.keyDown(globalThis, { key: "Enter" });
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("calls onClose when overlay clicked", () => {
+  it("calls onClose when backdrop clicked", () => {
     const onClose = vi.fn();
     const { container } = render(<ItemModal item={item} onClose={onClose} />);
-    fireEvent.click(container.querySelector(".modal-overlay")!);
+    fireEvent.click(container.querySelector(".modal-backdrop")!);
     expect(onClose).toHaveBeenCalled();
   });
 

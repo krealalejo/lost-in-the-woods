@@ -6,6 +6,7 @@ import {
   ITEMS,
 } from "../stories/lost-in-woods/handlers";
 import { parse } from "../stories/lost-in-woods/parser";
+import { makeGameHelpers } from "./game-test-utils";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {
@@ -18,15 +19,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
   };
 }
 
-function effectTypes(state: GameState, input: string) {
-  return handle(state, parse(input)).map((e) => e.type);
-}
-
-function firstPrint(state: GameState, input: string): string {
-  const effects = handle(state, parse(input));
-  const print = effects.find((e) => e.type === "PRINT");
-  return print && "text" in print ? print.text : "";
-}
+const { effectTypes, firstPrint } = makeGameHelpers(handle, parse);
 
 describe("handle — universal commands", () => {
   it("increments turns on every command", () => {
@@ -217,15 +210,15 @@ describe("handle — forest sequence", () => {
     });
     // Assert the reset PRINT is one of the 5 Akasawa lost-descriptions
     const prints = effects.filter((e) => e.type === "PRINT");
-    const lostDescriptions = [
+    const lostDescriptions = new Set([
       "You keep walking, but you could swear you already passed this same twisted pine tree.",
       "The flashlight beam catches something hanging from a branch: a humanoid figure made of sticks and filthy rope.",
       "You find three stones stacked on the ground. You did not place them there. Something is guiding you in circles.",
       "Far away, you hear a child crying. It sounds wrong, as if something is imitating the noise.",
       "You check the compass, but the needle spins wildly without stopping. You are completely disoriented.",
-    ];
+    ]);
     const descPrint = prints.find(
-      (e) => "text" in e && lostDescriptions.includes(e.text),
+      (e) => "text" in e && lostDescriptions.has(e.text),
     );
     expect(descPrint).toBeDefined();
   });
@@ -360,16 +353,16 @@ describe("handle — tent take fallback", () => {
   });
 });
 
-describe("handle — forest note items", () => {
-  function forestNoteState(step: number): GameState {
-    return makeState({
-      location: "forest",
-      flags: { forestStep: step },
-      inventory: [ITEMS.flashlight],
-      turns: 1,
-    });
-  }
+function forestNoteState(step: number): GameState {
+  return makeState({
+    location: "forest",
+    flags: { forestStep: step },
+    inventory: [ITEMS.flashlight],
+    turns: 1,
+  });
+}
 
+describe("handle — forest note items", () => {
   it("look at note item name returns 'looks important'", () => {
     const state = forestNoteState(2);
     const text = firstPrint(state, "look torn page");

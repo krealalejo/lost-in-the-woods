@@ -31,8 +31,10 @@ export function MapPanel({ mapHtml }: Readonly<Props>) {
       ghost.style.fontSize = "12px";
       ghost.style.lineHeight = "1.05";
       const cs = getComputedStyle(wrap);
-      const padH = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-      const padV = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const padH =
+        Number.parseFloat(cs.paddingLeft) + Number.parseFloat(cs.paddingRight);
+      const padV =
+        Number.parseFloat(cs.paddingTop) + Number.parseFloat(cs.paddingBottom);
       const availW = wrap.clientWidth - padH;
       const availH = wrap.clientHeight - padV;
       const naturalW = ghost.scrollWidth;

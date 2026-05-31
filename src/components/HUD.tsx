@@ -38,7 +38,7 @@ export function Hud({
   }
 
   const titleText = activeStory
-    ? `// ${activeStory.title} ${activeStory.version ?? ""}`
+    ? `// ${activeStory.title} ${activeStory.version ?? ""}`
     : "// ???";
 
   return (
@@ -47,26 +47,25 @@ export function Hud({
         <button
           className="title story-picker-btn"
           onClick={() => setOpen((v) => !v)}
-          aria-haspopup="listbox"
+          aria-haspopup="menu"
           aria-expanded={open}
         >
           {titleText}
           <span className="story-picker-caret">{open ? "▲" : "▼"}</span>
         </button>
         {open && (
-          <ul className="story-picker-menu" role="listbox">
+          <div role="menu" className="story-picker-menu">
             {stories.map((s) => (
-              <li
+              <button
                 key={s.id}
-                role="option"
-                aria-selected={s.id === activeStoryId}
+                role="menuitem"
                 className={`story-picker-option${s.id === activeStoryId ? " active" : ""}`}
                 onClick={() => handleSelect(s)}
               >
-                {`// ${s.title} ${s.version ?? ""}`}
-              </li>
+                {`// ${s.title} ${s.version ?? ""}`}
+              </button>
             ))}
-          </ul>
+          </div>
         )}
       </div>
       <div className="meta">

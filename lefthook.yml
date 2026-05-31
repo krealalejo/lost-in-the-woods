@@ -10,7 +10,7 @@ pre-push:
     test:
       run: pnpm test
 
-release-branch:
+post-checkout:
   commands:
     bump-version:
       run: |

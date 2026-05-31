@@ -14,15 +14,13 @@ export function BackpackPanel({ items, onItemClick }: Readonly<Props>) {
           <li className="backpack-empty">— empty —</li>
         ) : (
           items.map((item) => (
-            <li
-              key={item.name}
-              className="backpack-item"
-              role="button"
-              tabIndex={0}
-              onClick={() => onItemClick(item)}
-              onKeyDown={(e) => e.key === "Enter" && onItemClick(item)}
-            >
-              <span className="backpack-bullet">&gt;</span> {item.name}
+            <li key={item.name} className="backpack-item">
+              <button
+                onClick={() => onItemClick(item)}
+                onKeyDown={(e) => e.key === "Enter" && onItemClick(item)}
+              >
+                <span className="backpack-bullet">&gt;</span> {item.name}
+              </button>
             </li>
           ))
         )}
