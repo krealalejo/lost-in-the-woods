@@ -249,10 +249,10 @@ describe("ItemModal", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("calls onClose when overlay clicked", () => {
+  it("calls onClose when backdrop clicked", () => {
     const onClose = vi.fn();
     const { container } = render(<ItemModal item={item} onClose={onClose} />);
-    fireEvent.click(container.querySelector(".modal-overlay")!);
+    fireEvent.click(container.querySelector(".modal-backdrop")!);
     expect(onClose).toHaveBeenCalled();
   });
 
