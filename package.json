@@ -14,13 +14,13 @@
   },
   "dependencies": {
     "gsap": "^3.12.5",
-    "react": "^19.2.6",
+    "react": "^19.2.7",
     "react-dom": "^19.2.6"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@types/react": "^19.2.15",
+    "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.2.0",
     "@vitest/coverage-v8": "^4.1.7",
