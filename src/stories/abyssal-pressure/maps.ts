@@ -1,5 +1,5 @@
 export const MAPS: Record<string, string> = {
-  module_c: String.raw`
+  module_c: `
   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
   +===========+  +============+  +============+
@@ -15,7 +15,7 @@ export const MAPS: Record<string, string> = {
         {D:MARIANA BASTION  //  DEPTH: 3,400m}
 `,
 
-  corridor: String.raw`
+  corridor: `
   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
   +===========+  +============+  +============+
@@ -32,7 +32,7 @@ export const MAPS: Record<string, string> = {
         {D:MARIANA BASTION  //  DEPTH: 3,400m}
 `,
 
-  reactor: String.raw`
+  reactor: `
   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
   +===========+  +============+  +============+
@@ -48,7 +48,7 @@ export const MAPS: Record<string, string> = {
         {D:MARIANA BASTION  //  DEPTH: 3,400m}
 `,
 
-  airlock: String.raw`
+  airlock: `
   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
   +===========+  +============+  +============+
@@ -86,7 +86,7 @@ export const MAPS: Record<string, string> = {
         {LBL:Y O U   E S C A P E D}
 `,
 
-  ending_crush: String.raw`
+  ending_crush: `
 
   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~

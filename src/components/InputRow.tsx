@@ -87,7 +87,6 @@ export function InputRow({
           onKeyUp={(e) => syncCursor(e.currentTarget)}
           onClick={(e) => syncCursor(e.currentTarget)}
           onKeyDown={handleKeyDown}
-          autoFocus
           disabled={disabled}
           aria-busy={submitBlocked}
           spellCheck={false}

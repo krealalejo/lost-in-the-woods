@@ -86,24 +86,29 @@ describe("InputRow", () => {
     expect(input.value).toBe("next cmd");
   });
 
-  it("clicking wrapper focuses input", () => {
+  it("wrapper label targets the input so clicking it focuses the input", () => {
     renderInputRow();
     const input = screen.getByRole("textbox");
-    const wrapper = input.closest(".input-row")!;
-    fireEvent.click(wrapper);
+    const wrapper = input.closest<HTMLLabelElement>(".input-row")!;
+    expect(wrapper.control).toBe(input);
   });
 
-  it("clicking directly on input does not double-focus", () => {
-    renderInputRow();
-    const input = screen.getByRole("textbox");
+  it("clicking directly on input moves the cursor to the caret", () => {
+    const { container } = renderInputRow();
+    const input = screen.getByRole<HTMLInputElement>("textbox");
+    fireEvent.change(input, { target: { value: "abc" } });
+    input.setSelectionRange(1, 1);
     fireEvent.click(input);
+    expect(container.querySelector<HTMLElement>(".cursor")!.style.left).toBe("1ch");
   });
 
   it("onKeyUp fires syncCursor on input", () => {
-    renderInputRow();
-    const input = screen.getByRole("textbox");
+    const { container } = renderInputRow();
+    const input = screen.getByRole<HTMLInputElement>("textbox");
     fireEvent.change(input, { target: { value: "abc" } });
-    fireEvent.keyUp(input, { key: "c" });
+    input.setSelectionRange(2, 2);
+    fireEvent.keyUp(input, { key: "ArrowLeft" });
+    expect(container.querySelector<HTMLElement>(".cursor")!.style.left).toBe("2ch");
   });
 
   it("global keydown appends char when input not focused", () => {

@@ -31,7 +31,7 @@ function GameScreen({ story, onStoryChange }: Readonly<GameScreenProps>) {
 
   const handleCommand = useCallback(
     (cmd: string) => {
-      submit(cmd);
+      void submit(cmd);
     },
     [submit],
   );
