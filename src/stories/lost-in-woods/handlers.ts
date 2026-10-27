@@ -1,6 +1,6 @@
 import type { GameEffect, GameState, Item } from "../../engine/types";
 import type { CommandHandler } from "../types";
-import { chain, createHandle } from "../utils";
+import { chain, createHandle, createSystemHandler } from "../utils";
 import { DIR_ALIASES } from "./parser";
 
 export const ITEMS: Record<string, Item> = {
@@ -110,49 +110,6 @@ function noteHere(state: Readonly<GameState>): NoteEntry | null {
   return entry;
 }
 
-const handleHelp: CommandHandler = (_, cmd) => {
-  if (cmd.verb !== "help") return null;
-  return [
-    {
-      type: "PRINT",
-      text: "VERBS: look, take, drop, use, open, go, wait, yell, inventory, help, restart",
-    },
-    {
-      type: "PRINT",
-      text: "DIRECTIONS: north / south / east / west  (or n/s/e/w)",
-    },
-  ];
-};
-
-const handleInventory: CommandHandler = (state, cmd) => {
-  if (cmd.verb !== "inv") return null;
-  const text = state.inventory.length
-    ? "You are carrying: " + state.inventory.map((i) => i.name).join(", ") + "."
-    : "Your pockets are empty.";
-  return [{ type: "PRINT", text }];
-};
-
-const handleRestart: CommandHandler = (_, cmd) => {
-  if (cmd.verb !== "restart") return null;
-  return [
-    { type: "PRINT", text: "Rebooting the cartridge...", cls: "sys" },
-    { type: "DELAY", ms: 700 },
-    { type: "RELOAD" },
-  ];
-};
-
-const handleQuit: CommandHandler = (_, cmd) => {
-  if (cmd.verb !== "quit") return null;
-  return [
-    { type: "END_GAME", ending: "quit" },
-    {
-      type: "PRINT",
-      text: "You power off the console. The screen fades.",
-      cls: "sys",
-    },
-  ];
-};
-
 const handleWait: CommandHandler = (_, cmd) => {
   if (cmd.verb !== "wait") return null;
   return [{ type: "PRINT", text: "Time passes. Nothing else does." }];
@@ -171,10 +128,13 @@ const handleYell: CommandHandler = (state, cmd) => {
 };
 
 const universalHandler = chain(
-  handleHelp,
-  handleInventory,
-  handleRestart,
-  handleQuit,
+  createSystemHandler({
+    verbs:
+      "look, take, drop, use, open, go, wait, yell, inventory, help, restart",
+    emptyInventory: "Your pockets are empty.",
+    restart: "Rebooting the cartridge...",
+    quit: "You power off the console. The screen fades.",
+  }),
   handleWait,
   handleYell,
 );

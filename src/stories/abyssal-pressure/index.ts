@@ -1,7 +1,8 @@
 import type { GameEffect, GameState } from "../../engine/types";
 import type { Story } from "../types";
+import { createIntro, createMapRenderer } from "../utils";
 import { handle } from "./handlers";
-import { MAPS, renderMapTokens } from "./maps";
+import { MAPS } from "./maps";
 import { parse } from "./parser";
 
 const INITIAL_STATE: GameState = {
@@ -13,45 +14,19 @@ const INITIAL_STATE: GameState = {
 };
 
 function getIntro(): GameEffect[] {
-  return [
-    { type: "PRINT", text: "*** ABYSSAL PRESSURE ***", cls: "sys" },
-    {
-      type: "PRINT",
-      text: "an interactive fiction by NOBODY IN PARTICULAR, 1987",
-      cls: "sys",
-    },
-    { type: "PRINT", text: "release 1 / serial 19870302 / 48k", cls: "sys" },
-    { type: "DELAY", ms: 300 },
-    { type: "PRINT", text: "" },
-    {
-      type: "PRINT",
-      text: "You are Technician Second Class Maren Voss, aboard the deep-sea research platform MARIANA BASTION. Depth: 3,400 meters.",
-    },
-    {
-      type: "PRINT",
-      text: "Twenty minutes ago, an impact event knocked out primary power across three modules. Your radio is dead. Your crewmates are unaccounted for.",
-    },
-    {
-      type: "PRINT",
-      text: "For the last ten minutes, thermal imaging has been tracking a mass approximately eight meters long circling the station's external hull.",
-    },
-    { type: "PRINT", text: "" },
-    {
-      type: "PRINT",
-      text: "The escape pod in the airlock bay is your only way out. You just need to reach it.",
-    },
-    { type: "PRINT", text: "" },
-    { type: "PRINT", text: "Type HELP for a list of verbs.", cls: "sys" },
-  ];
+  return createIntro(
+    { title: "ABYSSAL PRESSURE", year: 1987, serial: "19870302" },
+    [
+      "You are Technician Second Class Maren Voss, aboard the deep-sea research platform MARIANA BASTION. Depth: 3,400 meters.",
+      "Twenty minutes ago, an impact event knocked out primary power across three modules. Your radio is dead. Your crewmates are unaccounted for.",
+      "For the last ten minutes, thermal imaging has been tracking a mass approximately eight meters long circling the station's external hull.",
+      "",
+      "The escape pod in the airlock bay is your only way out. You just need to reach it.",
+    ],
+  );
 }
 
-function getMap(state: Readonly<GameState>): string {
-  let key = state.location;
-  if (state.ended === "escape") key = "ending_escape";
-  else if (state.ended === "crush") key = "ending_crush";
-  const raw = MAPS[key] ?? "";
-  return renderMapTokens(raw);
-}
+const getMap = createMapRenderer(MAPS, ["escape", "crush"]);
 
 export const abyssalPressureStory: Story = {
   id: "abyssal-pressure",

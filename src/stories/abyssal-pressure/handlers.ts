@@ -1,6 +1,6 @@
 import type { GameEffect, Item } from "../../engine/types";
 import type { CommandHandler } from "../types";
-import { chain, createHandle } from "../utils";
+import { chain, createHandle, createSystemHandler } from "../utils";
 
 export const ITEMS: Record<string, Item> = {
   emergency_beacon: {
@@ -16,45 +16,6 @@ export const ITEMS: Record<string, Item> = {
 } as const;
 
 // ─── UNIVERSAL ────────────────────────────────────────────────────────────────
-
-const handleHelp: CommandHandler = (_, cmd) => {
-  if (cmd.verb !== "help") return null;
-  return [
-    {
-      type: "PRINT",
-      text: "VERBS: look, take, drop, use, open, activate, reroute, launch, go, wait, inventory, help, restart",
-    },
-    {
-      type: "PRINT",
-      text: "DIRECTIONS: north / south / east / west  (or n/s/e/w)",
-    },
-  ];
-};
-
-const handleInventory: CommandHandler = (state, cmd) => {
-  if (cmd.verb !== "inv") return null;
-  const text = state.inventory.length
-    ? "You are carrying: " + state.inventory.map((i) => i.name).join(", ") + "."
-    : "You are carrying nothing.";
-  return [{ type: "PRINT", text }];
-};
-
-const handleRestart: CommandHandler = (_, cmd) => {
-  if (cmd.verb !== "restart") return null;
-  return [
-    { type: "PRINT", text: "Rebooting...", cls: "sys" },
-    { type: "DELAY", ms: 700 },
-    { type: "RELOAD" },
-  ];
-};
-
-const handleQuit: CommandHandler = (_, cmd) => {
-  if (cmd.verb !== "quit") return null;
-  return [
-    { type: "END_GAME", ending: "quit" },
-    { type: "PRINT", text: "Terminal disconnected.", cls: "sys" },
-  ];
-};
 
 const handleWait: CommandHandler = (_, cmd) => {
   if (cmd.verb !== "wait") return null;
@@ -86,10 +47,13 @@ const handleYell: CommandHandler = (state, cmd) => {
 };
 
 const universalHandler = chain(
-  handleHelp,
-  handleInventory,
-  handleRestart,
-  handleQuit,
+  createSystemHandler({
+    verbs:
+      "look, take, drop, use, open, activate, reroute, launch, go, wait, inventory, help, restart",
+    emptyInventory: "You are carrying nothing.",
+    restart: "Rebooting...",
+    quit: "Terminal disconnected.",
+  }),
   handleWait,
   handleYell,
 );
