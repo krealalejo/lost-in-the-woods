@@ -511,39 +511,17 @@ describe("abyssal-pressure handle — reactor", () => {
     expect(fx.filter((e) => e.type === "PRINT").length).toBeGreaterThan(0);
   });
 
-  it("reroute with no noun (just 'reroute')", () => {
-    const fx = handle(base(), parse("reroute"));
-    expect(fx.find((e) => e.type === "SET_FLAG")).toBeDefined();
-  });
-
-  it("reroute panel target", () => {
-    const fx = handle(base(), parse("reroute panel"));
-    expect(fx.find((e) => e.type === "SET_FLAG")).toBeDefined();
-  });
-
-  it("reroute circuit target", () => {
-    const fx = handle(base(), parse("reroute circuit"));
-    expect(fx.find((e) => e.type === "SET_FLAG")).toBeDefined();
-  });
-
-  it("reroute switch target", () => {
-    const fx = handle(base(), parse("reroute switch"));
-    expect(fx.find((e) => e.type === "SET_FLAG")).toBeDefined();
-  });
+  it.each(["reroute", "reroute panel", "reroute circuit", "reroute switch", "use panel", "activate panel"])(
+    "'%s' reroutes power",
+    (command) => {
+      const fx = handle(base(), parse(command));
+      expect(fx.find((e) => e.type === "SET_FLAG")).toBeDefined();
+    },
+  );
 
   it("reroute already done", () => {
     const state = { ...base(), flags: { power_rerouted: true } };
     expect(firstPrint(state, "reroute power")).toMatch(/already/i);
-  });
-
-  it("use panel → reroutes", () => {
-    const fx = handle(base(), parse("use panel"));
-    expect(fx.find((e) => e.type === "SET_FLAG")).toBeDefined();
-  });
-
-  it("activate panel → reroutes", () => {
-    const fx = handle(base(), parse("activate panel"));
-    expect(fx.find((e) => e.type === "SET_FLAG")).toBeDefined();
   });
 
   it("reroute non-panel noun falls through to fallback", () => {
@@ -567,25 +545,13 @@ describe("abyssal-pressure handle — reactor", () => {
     expect(firstPrint(base(), "take beacon")).toMatch(/nothing/i);
   });
 
-  it("open locker without suit → gives suit", () => {
-    const fx = handle(base(), parse("open locker"));
-    expect(fx.find((e) => e.type === "ADD_TO_INVENTORY")).toBeDefined();
-  });
-
-  it("open red locker without suit → gives suit", () => {
-    const fx = handle(base(), parse("open red locker"));
-    expect(fx.find((e) => e.type === "ADD_TO_INVENTORY")).toBeDefined();
-  });
-
-  it("open with no noun → opens locker", () => {
-    const fx = handle(base(), parse("open"));
-    expect(fx.find((e) => e.type === "ADD_TO_INVENTORY")).toBeDefined();
-  });
-
-  it("open suit (synonymn) → gives suit", () => {
-    const fx = handle(base(), parse("open suit"));
-    expect(fx.find((e) => e.type === "ADD_TO_INVENTORY")).toBeDefined();
-  });
+  it.each(["open locker", "open red locker", "open", "open suit"])(
+    "'%s' without suit gives the suit",
+    (command) => {
+      const fx = handle(base(), parse(command));
+      expect(fx.find((e) => e.type === "ADD_TO_INVENTORY")).toBeDefined();
+    },
+  );
 
   it("open locker when suit already held", () => {
     const state = { ...base(), inventory: [ITEMS.pressure_suit] };
@@ -596,26 +562,14 @@ describe("abyssal-pressure handle — reactor", () => {
     expect(firstPrint(base(), "open beacon")).toMatch(/can't do that/i);
   });
 
-  it("move west → corridor", () => {
-    const fx = handle(base(), parse("west"));
-    const loc = fx.find((e) => e.type === "SET_LOCATION");
-    expect(loc && "location" in loc ? loc.location : "").toBe("corridor");
-  });
-
-  it("move south → corridor", () => {
-    const fx = handle(base(), parse("south"));
+  it.each(["west", "south", "leave"])("'%s' moves to the corridor", (command) => {
+    const fx = handle(base(), parse(command));
     const loc = fx.find((e) => e.type === "SET_LOCATION");
     expect(loc && "location" in loc ? loc.location : "").toBe("corridor");
   });
 
   it("move east → blocked", () => {
     expect(firstPrint(base(), "east")).toMatch(/blocked/i);
-  });
-
-  it("leave → moves west to corridor", () => {
-    const fx = handle(base(), parse("leave"));
-    const loc = fx.find((e) => e.type === "SET_LOCATION");
-    expect(loc && "location" in loc ? loc.location : "").toBe("corridor");
   });
 
   it("unknown command fallback", () => {

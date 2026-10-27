@@ -77,7 +77,7 @@ describe("handle — tent", () => {
     expect(text).toMatch(/already/i);
     const effects = handle(state, parse("take flashlight"));
     const addEffects = effects.filter((e) => e.type === "ADD_TO_INVENTORY");
-    expect(addEffects.length).toBe(0);
+    expect(addEffects).toHaveLength(0);
   });
 
   it("leave enters forest", () => {
