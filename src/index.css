@@ -267,7 +267,7 @@ body,
   text-shadow:
     0 0 2px rgba(var(--phos-rgb), 0.9),
     0 0 8px var(--phos-glow);
-  word-break: break-word;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -478,7 +478,7 @@ body,
 
 .line {
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .line.cmd {
