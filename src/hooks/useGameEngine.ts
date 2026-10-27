@@ -73,11 +73,11 @@ export function useGameEngine(story: Story) {
   );
 
   const processEffects = useCallback(
-    async (effects: GameEffect[]) => {
-      for (const effect of effects) {
-        await applyEffect(effect);
-      }
-    },
+    (effects: GameEffect[]) =>
+      effects.reduce<Promise<void>>(
+        (previous, effect) => previous.then(() => applyEffect(effect)),
+        Promise.resolve(),
+      ),
     [applyEffect],
   );
 
@@ -146,7 +146,7 @@ export function useGameEngine(story: Story) {
       /* istanbul ignore next */
       if (!cancelled) setBusyBoth(false);
     };
-    run();
+    void run();
     return () => {
       cancelled = true;
       clearLines();
